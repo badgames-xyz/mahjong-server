@@ -15,5 +15,5 @@ class Server():
 if __name__ == "__main__":
     server = Server()
     print("Starting Mahjong Server...")
-    asyncio.get_event_loop().run_until_complete(websockets.serve(server.manageRequests, "https://badmahjong-server.herokuapp.com/", 8081))
+    asyncio.get_event_loop().run_until_complete(websockets.serve(server.manageRequests, "0.0.0.0", os.environ['PORT']))
     asyncio.get_event_loop().run_forever()
