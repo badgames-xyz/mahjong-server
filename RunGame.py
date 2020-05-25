@@ -9,18 +9,19 @@ Created on Sat Sep 28 05:40:22 2019
 
 from Player import *
 from Tile import *
-from websockets import *
 
 #Variables
 dontDraw = True
 seats = ["East","South","West","North"]
+roundCounter = 0
 
 #Replace with player data (id,name) from lobby
-players = [Player(0,{},1500,""),
-           Player(1,{},1500,""),
-           Player(2,{},1500,""),
-           Player(3,{},1500,"")]
+playerList = [Player(0,{},1500,"East",True),
+           Player(1,{},1500,"South",False),
+           Player(2,{},1500,"West",False),
+           Player(3,{},1500,"North",False)]
 
+#Sets up round for game, set tiles in deck, draw tiles for players
 def setupGame():
     #Setting up tiles in deck
     typesOfTile = ("Special", "Stick", "Circle", "Char")
@@ -35,18 +36,16 @@ def setupGame():
     for initialTile in list(allTiles.keys()):
         availableTiles.append(initialTile)
     
-    #Setting up player seating
-    random.shuffle(players)
-    for seatDeicide in range(0,4):
-        players[seatDeicide].seat = seats[seatDeicide]
-    
     #Setup starting hand for each player, East seat player gets the first turn
-    for playerDrawing in players:
-        if (playerDrawing.seat == "East"):
-            for numToDraw in range(0,14):
+    for drawing in range(0,3):
+        for playerDrawing in playerList:
+            for numtoDraw in range(0,4):
                 playerDrawing.draw()
-        else:
-            for numToDraw in range(0,13):
+    for playerDrawing in playerList:
+            if (playerDrawing.seat == "East"):
+                for numToDraw in range(0,2):
+                    playerDrawing.draw()
+            else:
                 playerDrawing.draw()
     
 def turn(player):
@@ -70,10 +69,18 @@ def turn(player):
     
     return selectedTile
 
+#If someone wins, rotate player list and seat order
+def rotateTurnOrder(playerList):
+    global roundCounter
+    playerList = playerList[1:] + playerList[:1]
+    for seatChange in range(0,4):
+        playerList[seatChange] = seats[seatChange]
+    roundCounter += 1
+
 def gameRound():
     #Play through the round until tiles run out
     while availableTiles:
-        for playerTurn in players:
+        for playerTurn in playerList:
             turn(playerTurn)
         if not availableTiles:
             break
