@@ -10,6 +10,7 @@ class Server():
     async def manageRequests(self, websocket, path):
         async for message in websocket:
             print(message)
+            await websocket.send(message)
 
 if __name__ == "__main__":
     server = Server()
