@@ -2,18 +2,12 @@ import os
 import time
 import random
 import json
-import asyncio
-import websockets
+from flask import Flask, render_template, request
+from flask_socketio import SocketIO, join_room, leave_room, send
+import sys
 
+app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-class Server():     
-    async def manageRequests(self, websocket, path):
-        async for message in websocket:
-            print(message)
-            await websocket.send(message)
-
-if __name__ == "__main__":
-    server = Server()
-    print("Starting Mahjong Server...")
-    asyncio.get_event_loop().run_until_complete(websockets.serve(server.manageRequests, "0.0.0.0", os.environ['PORT']))
-    asyncio.get_event_loop().run_forever()
+if __name__ == '__main__':
+    socketio.run(app, host='0.0.0.0', os.environ['PORT'])
