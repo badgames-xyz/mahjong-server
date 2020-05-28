@@ -2,3 +2,6 @@ websockets==8.1
 flask==1.1.2
 flask-socketio==4.3.0
 gunicorn==20.0.4
+gevent==20.5.2
+gevent-socketio==0.3.6
+gevent-websocket==0.10.1
