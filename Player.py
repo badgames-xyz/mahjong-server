@@ -4,16 +4,35 @@ allTiles = {}
 availableTiles = []
 
 class Player:
-    def __init__(self,userNum,hand,coins,seat,host):
-        self.user = userNum
-        self.hand = hand
-        self.coins = coins
-        self.seat = seat
-        self.host = host
-    
+    def __init__(self, playerID, isHost, sessionID):
+        names = ["Md Devlin", "Huxley Atkins", "Bilaal Sheldon", "Mark Dalton", "Tahlia Dunn", "Tala Case", "Francesca Campbell", "Rex Cassidy", "Suranne Guest", "Jamal Bridges"]
+        self.playerID = playerID
+        self.playerName = random.choice(names)
+        self.iconIndex = 0
+        self.isHost = isHost
+        self.isReady = isHost
+        self.sessionID = sessionID
+
+
     def __repr__(self):
         return str((self.user,self.hand,self.coins,self.seat))
     
+    #def start(self):
+    #    self.user = userNum
+    #    self.hand = hand
+    #    self.coins = coins
+    #    self.seat = seat
+    #    self.host = host
+
+    def getPlayerJSON(self):
+        json = {}
+        json["id"] = self.playerID
+        json["name"] = self.playerName
+        json["iconIndex"] = self.iconIndex
+        json["isHost"] = self.isHost
+        json["ready"] = self.isReady
+        return json
+
     def draw(self):
         tileID = random.randint(0,len(availableTiles)-1)
         drawnTile = availableTiles[tileID]
