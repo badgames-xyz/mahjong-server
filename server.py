@@ -14,10 +14,12 @@ games = {}
 
 @socketio.on('join')
 def onJoin(data):
+    data = json.loads(data)
     roomCode = data["roomCode"]
     games[roomCode].addPlayer(False, request.sid)
-    for p in games[roomCode]["players"]:
-        emit('lobbyData', games[roomCode].getLobbyDataJSON(p.sessionID), room=p.sessionID)
+    for p in games[roomCode].players:
+        player = games[roomCode].players[p]
+        emit('lobbyData', games[roomCode].getLobbyDataJSON(player.sessionID), room=player.sessionID)
 
 @socketio.on('create')
 def onCreate(data):
