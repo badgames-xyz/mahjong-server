@@ -12,14 +12,20 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 games = {}
 
+def notifyAll(roomCode):
+    for p in games[roomCode].players:
+            player = games[roomCode].players[p]
+            emit('lobbyData', games[roomCode].getLobbyDataJSON(player.sessionID), room=player.sessionID)
+
 @socketio.on('join')
 def onJoin(data):
     data = json.loads(data)
     roomCode = data["roomCode"]
+    if roomCode not in games:
+        emit('error', {'code': 1})
+        return
     games[roomCode].addPlayer(False, request.sid)
-    for p in games[roomCode].players:
-        player = games[roomCode].players[p]
-        emit('lobbyData', games[roomCode].getLobbyDataJSON(player.sessionID), room=player.sessionID)
+    notifyAll(roomCode)
 
 @socketio.on('create')
 def onCreate(data):
@@ -30,7 +36,45 @@ def onCreate(data):
 
 @socketio.on('leave')
 def onLeave(data):
-    print(request.sid, file=sys.stderr)
+    data = json.loads(data)
+    roomCode = data["roomCode"]
+    if roomCode not in games:
+        emit('error', {'code': 3})
+        return
+    games[roomCode].removePlayer(request.sid)
+    notifyAll(roomCode)
+
+@socketio.on('changeName')
+def onNameChange(data):
+    data = json.loads(data)
+    roomCode = data["roomCode"]
+    newName = data["name"]
+    if roomCode not in games:
+        emit('error', {'code': 2})
+        return
+    games[roomCode].changeName(request.sid, newName)
+    notifyAll(roomCode)
+
+@socketio.on('ready')
+def onReady(data):
+    data = json.loads(data)
+    roomCode = data["roomCode"]
+    if roomCode not in games:
+        emit('error', {'code': 4})
+        return
+    games[roomCode].playerReady(request.sid, True)
+    notifyAll(roomCode)
+
+@socketio.on('notReady')
+def onNotReady(data):
+    data = json.loads(data)
+    roomCode = data["roomCode"]
+    if roomCode not in games:
+        emit('error', {'code': 5})
+        return
+    games[roomCode].playerReady(request.sid, False)
+    notifyAll(roomCode)
+
 
 
 if __name__ == '__main__':

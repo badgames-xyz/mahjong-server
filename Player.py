@@ -8,7 +8,7 @@ class Player:
         names = ["Md Devlin", "Huxley Atkins", "Bilaal Sheldon", "Mark Dalton", "Tahlia Dunn", "Tala Case", "Francesca Campbell", "Rex Cassidy", "Suranne Guest", "Jamal Bridges"]
         self.playerID = playerID
         self.playerName = random.choice(names)
-        self.iconIndex = 0
+        self.iconIndex = random.randint(0,3)
         self.isHost = isHost
         self.isReady = isHost
         self.sessionID = sessionID
@@ -32,6 +32,12 @@ class Player:
         json["isHost"] = self.isHost
         json["ready"] = self.isReady
         return json
+
+    def changeName(self, newName):
+        self.playerName = newName
+    
+    def ready(self, readyStatus):
+        self.isReady = readyStatus
 
     def draw(self):
         tileID = random.randint(0,len(availableTiles)-1)

@@ -20,7 +20,7 @@ class Game():
         return json
 
     def createCode(self, len):
-        letters = "abcdefghijklmnopqrstuvwxyz"
+        letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         return "".join(random.choice(letters) for l in range(len))
 
     # Returns a random 8 uppercase letter sequence thats not already in use
@@ -29,3 +29,22 @@ class Game():
         while playerID in self.players:
             playerID = self.createCode(8)
         self.players[playerID] = Player(playerID, isHost, sessionID)
+
+    def removePlayer(self, sessionID):
+        for p in self.players:
+            player = self.players[p]
+            if player.sessionID == sessionID:
+                self.players.pop(player)
+    
+    def changeName(self, sessionID, newName):
+        for p in self.players:
+            player = self.players[p]
+            if player.sessionID == sessionID:
+                player.changeName(newName)
+
+    def playerReady(self, sessionID, readyStatus):
+        for p in self.players:
+            player = self.players[p]
+            if player.sessionID == sessionID:
+                player.ready(readyStatus)
+ 
