@@ -41,7 +41,9 @@ def onLeave(data):
     if roomCode not in games:
         emit('error', {'code': 3})
         return
-    games[roomCode].removePlayer(request.sid)
+    closeRoom = games[roomCode].removePlayer(request.sid)
+    if closeRoom: # no more players
+        games.pop(roomCode)
     notifyAll(roomCode)
 
 @socketio.on('changeName')

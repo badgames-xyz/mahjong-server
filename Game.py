@@ -34,7 +34,12 @@ class Game():
         for p in self.players:
             player = self.players[p]
             if player.sessionID == sessionID:
-                self.players.pop(player)
+                popped = self.players.pop(p)
+                if popped.isHost: # pass host along
+                    for p in self.players:
+                        self.players[p].isHost = True
+                        break
+                return not self.players
     
     def changeName(self, sessionID, newName):
         for p in self.players:
