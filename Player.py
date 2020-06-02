@@ -33,6 +33,9 @@ class Player:
         json["ready"] = self.isReady
         return json
 
+    def changeIcon(self, index):
+        self.iconIndex = index
+
     def changeName(self, newName):
         self.playerName = newName
     

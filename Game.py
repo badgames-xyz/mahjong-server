@@ -42,6 +42,12 @@ class Game():
                         break
                 return not self.players
     
+    def changeIcon(self, sessionID, index):
+        for p in self.players:
+            player = self.players[p]
+            if player.sessionID == sessionID:
+                player.changeIcon(index)
+
     def changeName(self, sessionID, newName):
         for p in self.players:
             player = self.players[p]

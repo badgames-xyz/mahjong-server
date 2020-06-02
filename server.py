@@ -63,6 +63,17 @@ def onLeave(data):
         games.pop(roomCode)
     notifyAll(roomCode)
 
+@socketio.on('changeIcon')
+def onNameChange(data):
+    data = json.loads(data)
+    roomCode = data["roomCode"]
+    iconIndex = data["iconIndex"]
+    if roomCode not in games:
+        emit('error', {'code': 6})
+        return
+    games[roomCode].changeIcon(request.sid, iconIndex)
+    notifyAll(roomCode)
+
 @socketio.on('changeName')
 def onNameChange(data):
     data = json.loads(data)
