@@ -27,6 +27,23 @@ def onJoin(data):
     games[roomCode].addPlayer(False, request.sid)
     notifyAll(roomCode)
 
+@socketio.on('refresh')
+def onJoin(data):
+    data = json.loads(data)
+    roomCode = data["roomCode"]
+    if roomCode not in games:
+        emit('error', {'code': 1})
+        return
+    inGame = False
+    for p in games[roomCode].players:
+        player = games[roomCode].players[p]
+        if player.sessionID == request.sid:
+            inGame = True
+            break
+    if not inGame:
+        games[roomCode].addPlayer(False, request.sid)
+    notifyAll(roomCode)
+
 @socketio.on('create')
 def onCreate(data):
     game = Game()

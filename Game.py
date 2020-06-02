@@ -38,6 +38,7 @@ class Game():
                 if popped.isHost: # pass host along
                     for p in self.players:
                         self.players[p].isHost = True
+                        self.players[p].isReady = True
                         break
                 return not self.players
     
