@@ -173,7 +173,7 @@ def onGameStart(data):
         emit('error', {'code': 9})
         return
     #games[roomCode].startGame()
-    #gameNotifyAll(roomCode)
+    gameNotifyAll(roomCode)
 
 
 
