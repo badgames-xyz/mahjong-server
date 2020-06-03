@@ -24,7 +24,7 @@ class Player:
     #    self.seat = seat
     #    self.host = host
 
-    def getPlayerJSON(self):
+    def getLobbyPlayerJSON(self):
         json = {}
         json["id"] = self.playerID
         json["name"] = self.playerName

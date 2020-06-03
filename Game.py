@@ -14,10 +14,13 @@ class Game():
         json["roomCode"] = self.roomCode
         json["players"] = []
         for p in self.players:
-            json["players"].append(self.players[p].getPlayerJSON())
+            json["players"].append(self.players[p].getLobbyPlayerJSON())
             if self.players[p].sessionID == sessionID:
-                json["currentPlayer"] = self.players[p].getPlayerJSON()
+                json["currentPlayer"] = self.players[p].getLobbyPlayerJSON()
         return json
+
+    def getGameDataJSON(self, sessionID):
+
 
     def createCode(self, len):
         letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -59,4 +62,16 @@ class Game():
             player = self.players[p]
             if player.sessionID == sessionID:
                 player.ready(readyStatus)
- 
+
+    def canStart(self, sessionID):
+        for p in self.players:
+            player = self.players[p]
+            if player.sessionID == sessionID 
+                if not player.isHost:
+                    return False
+        for p in self.players:
+            if not player.isReady
+            return False
+        return True
+        
+    def 

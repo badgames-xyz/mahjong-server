@@ -12,10 +12,65 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 games = {}
 
-def notifyAll(roomCode):
+dummy = {
+    'currentDirection': "north",
+    'turn': "ABCD",
+    'eatTurn': "",
+    'winner': "",
+    'players': [
+        {
+            'id': "ABCD",
+            'name': "BOG",
+            'iconIndex': "1",
+            'direction': "north",
+            'score': 420,
+            'handSize': 13,
+            'completed': [[{'suit': "circle", 'num': 6}, {'suit': "circle", 'num': 4}, {'suit': "circle", 'num': 2}]]
+        },
+        {
+            'id': "ABCE",
+            'name': "BOG2",
+            'iconIndex': "1",
+            'direction': "east",
+            'score': 420,
+            'handSize': 13,
+            'completed': []
+        },
+        {
+            'id': "ABCF",
+            'name': "BOG3",
+            'iconIndex': "1",
+            'direction': "south",
+            'score': 420,
+            'handSize': 13,
+            'completed': []
+        },
+    ],
+    'currentPlayer': {
+            'id': "ABCG",
+            'name': "BOG4",
+            'iconIndex': "1",
+            'direction': "west",
+            'score': 420,
+            'handSize': 13,
+            'completed': [[{'suit': "circle", 'num': 5}, {'suit': "circle", 'num': 6}, {'suit': "circle", 'num': 7}]],
+            'eatOptions': [[{'suit': "circle", 'num': 5}, {'suit': "circle", 'num': 6}, {'suit': "circle", 'num': 7}]],
+    },
+    'discardPile': [[{'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 4}, {'suit': "circle", 'num': 3}]],
+    'drawPile': 10
+}
+
+
+
+def lobbyNotifyAll(roomCode):
     for p in games[roomCode].players:
             player = games[roomCode].players[p]
             emit('lobbyData', games[roomCode].getLobbyDataJSON(player.sessionID), room=player.sessionID)
+
+def gameNotifyAll(roomCode):
+    for p in games[roomCode].players:
+            player = games[roomCode].players[p]
+            emit('gameData', games[roomCode].getGameDataJSON(player.sessionID), room=player.sessionID)
 
 @socketio.on('join')
 def onJoin(data):
@@ -25,7 +80,7 @@ def onJoin(data):
         emit('error', {'code': 1})
         return
     games[roomCode].addPlayer(False, request.sid)
-    notifyAll(roomCode)
+    lobbyNotifyAll(roomCode)
 
 @socketio.on('refresh')
 def onRefresh(data):
@@ -42,7 +97,7 @@ def onRefresh(data):
             break
     if not inGame:
         games[roomCode].addPlayer(False, request.sid)
-    notifyAll(roomCode)
+    lobbyNotifyAll(roomCode)
 
 @socketio.on('create')
 def onCreate(data):
@@ -62,7 +117,7 @@ def onLeave(data):
     if closeRoom: # no more players
         games.pop(roomCode)
         return
-    notifyAll(roomCode)
+    lobbyNotifyAll(roomCode)
 
 @socketio.on('changeIcon')
 def onIconChange(data):
@@ -73,7 +128,7 @@ def onIconChange(data):
         emit('error', {'code': 6})
         return
     games[roomCode].changeIcon(request.sid, iconIndex)
-    notifyAll(roomCode)
+    lobbyNotifyAll(roomCode)
 
 @socketio.on('changeName')
 def onNameChange(data):
@@ -84,7 +139,7 @@ def onNameChange(data):
         emit('error', {'code': 2})
         return
     games[roomCode].changeName(request.sid, newName)
-    notifyAll(roomCode)
+    lobbyNotifyAll(roomCode)
 
 @socketio.on('ready')
 def onReady(data):
@@ -94,7 +149,7 @@ def onReady(data):
         emit('error', {'code': 4})
         return
     games[roomCode].playerReady(request.sid, True)
-    notifyAll(roomCode)
+    lobbyNotifyAll(roomCode)
 
 @socketio.on('notReady')
 def onNotReady(data):
@@ -104,7 +159,21 @@ def onNotReady(data):
         emit('error', {'code': 5})
         return
     games[roomCode].playerReady(request.sid, False)
-    notifyAll(roomCode)
+    lobbyNotifyAll(roomCode)
+
+@socketio.on('startGame')
+def onGameStart(data):
+    data = json.loads(data)
+    roomCode = data["roomCode"]
+    if roomCode not in games:
+        emit('error', {'code': 8})
+        return
+    if not data[roomCode].canStart(request.sid):
+        emit('error', {'code': 9})
+        return
+    emit('gameData', dummy)
+    #games[roomCode].startGame()
+    #gameNotifyAll(roomCode)
 
 
 
