@@ -32,7 +32,7 @@ def onRefresh(data):
     data = json.loads(data)
     roomCode = data["roomCode"]
     if roomCode not in games:
-        emit('error', {'code': 1})
+        emit('error', {'code': 7})
         return
     inGame = False
     for p in games[roomCode].players:
