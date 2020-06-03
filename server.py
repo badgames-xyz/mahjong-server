@@ -168,7 +168,7 @@ def onGameStart(data):
     if roomCode not in games:
         emit('error', {'code': 8})
         return
-    if not data[roomCode].canStart(request.sid):
+    if not games[roomCode].canStart(request.sid):
         emit('error', {'code': 9})
         return
     emit('gameData', dummy)
