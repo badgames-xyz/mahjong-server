@@ -28,7 +28,7 @@ def onJoin(data):
     notifyAll(roomCode)
 
 @socketio.on('refresh')
-def onJoin(data):
+def onRefresh(data):
     data = json.loads(data)
     roomCode = data["roomCode"]
     if roomCode not in games:
@@ -61,10 +61,11 @@ def onLeave(data):
     closeRoom = games[roomCode].removePlayer(request.sid)
     if closeRoom: # no more players
         games.pop(roomCode)
+        return
     notifyAll(roomCode)
 
 @socketio.on('changeIcon')
-def onNameChange(data):
+def onIconChange(data):
     data = json.loads(data)
     roomCode = data["roomCode"]
     iconIndex = data["iconIndex"]
