@@ -70,7 +70,8 @@ def lobbyNotifyAll(roomCode):
 def gameNotifyAll(roomCode):
     for p in games[roomCode].players:
             player = games[roomCode].players[p]
-            emit('gameData', games[roomCode].getGameDataJSON(player.sessionID), room=player.sessionID)
+            emit('gameData', dummy, room=player.sessionID)
+            #emit('gameData', games[roomCode].getGameDataJSON(player.sessionID), room=player.sessionID)
 
 @socketio.on('join')
 def onJoin(data):
@@ -171,7 +172,6 @@ def onGameStart(data):
     if not games[roomCode].canStart(request.sid):
         emit('error', {'code': 9})
         return
-    emit('gameData', dummy)
     #games[roomCode].startGame()
     #gameNotifyAll(roomCode)
 
