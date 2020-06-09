@@ -175,6 +175,20 @@ def onGameStart(data):
     #games[roomCode].startGame()
     gameNotifyAll(roomCode)
 
+@socketio.on('discard')
+def onDiscard(data):
+    data = json.loads(data)
+    roomCode = data["roomCode"]
+
+@socketio.on('action')
+def onAction(data):
+    data = json.loads(data)
+    roomCode = data["roomCode"]
+
+@socketio.on('win')
+def onWin(data):
+    data = json.loads(data)
+    roomCode = data["roomCode"]
 
 
 if __name__ == '__main__':
