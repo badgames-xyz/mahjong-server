@@ -12,8 +12,9 @@ class Game():
     def getLobbyDataJSON(self, sessionID):
         json = {}
         json["roomCode"] = self.roomCode
-        json["players"] = self.players
+        json["players"] = []
         for i in range(len(self.players)):
+            json["players"].append(self.players[i]).getLobbyPlayerJSON()
             if self.players[i].sessionID == sessionID:
                 json["currentPlayer"] = self.players[i].getLobbyPlayerJSON()
         return json
