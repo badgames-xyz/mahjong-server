@@ -87,7 +87,7 @@ class Game():
         self.turn = { "suit": "special", "num": 1 }
         self.actionTurn = False
         self.winner = None
-        for i in range(len(self.players)):
+        for i in range(1, len(self.players) + 1):
             self.players[i].startGame({ "suit": "special", "num": i })
         self.discardPile = []
         self.drawPile = 420
