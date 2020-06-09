@@ -92,8 +92,7 @@ def onRefresh(data):
         return
     inGame = False
     for p in games[roomCode].players:
-        player = games[roomCode].players[p]
-        if player.sessionID == request.sid:
+        if p.sessionID == request.sid:
             inGame = True
             break
     if not inGame:
