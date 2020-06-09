@@ -64,14 +64,12 @@ dummy = {
 
 def lobbyNotifyAll(roomCode):
     for p in games[roomCode].players:
-            player = games[roomCode].players[p]
-            emit('lobbyData', games[roomCode].getLobbyDataJSON(player.sessionID), room=player.sessionID)
+            emit('lobbyData', games[roomCode].getLobbyDataJSON(p.sessionID), room=p.sessionID)
 
 def gameNotifyAll(roomCode):
     for p in games[roomCode].players:
-            player = games[roomCode].players[p]
             #emit('gameData', dummy, room=player.sessionID)
-            emit('gameData', games[roomCode].getGameDataJSON(player.sessionID), room=player.sessionID)
+            emit('gameData', games[roomCode].getGameDataJSON(p.sessionID), room=p.sessionID)
 
 @socketio.on('join')
 def onJoin(data):
@@ -92,8 +90,7 @@ def onRefresh(data):
         return
     inGame = False
     for p in games[roomCode].players:
-        player = games[roomCode].players[p]
-        if player.sessionID == request.sid:
+        if p.sessionID == request.sid:
             inGame = True
             break
     if not inGame:
