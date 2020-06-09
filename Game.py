@@ -25,6 +25,7 @@ class Game():
         json["turn"] = self.turn
         json["actionTurn"] = self.actionTurn
         json["winner"] = self.winner
+        json["players"] = []
         for i in range(len(self.players)):
             if self.players[i].sessionID == sessionID:
                 json["currentPlayer"] = self.players[i].getGamePlayerJSON(True)
