@@ -56,7 +56,7 @@ dummy = {
             'completed': [[{'suit': "circle", 'num': 5}, {'suit': "circle", 'num': 6}, {'suit': "circle", 'num': 7}]],
             'eatOptions': [[{'suit': "circle", 'num': 5}, {'suit': "circle", 'num': 6}, {'suit': "circle", 'num': 7}]],
     },
-    'discardPile': [[{'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 4}, {'suit': "circle", 'num': 3}]],
+    'discardPile': [{'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 4}, {'suit': "circle", 'num': 3}],
     'drawPile': 10
 }
 
@@ -70,8 +70,8 @@ def lobbyNotifyAll(roomCode):
 def gameNotifyAll(roomCode):
     for p in games[roomCode].players:
             player = games[roomCode].players[p]
-            emit('gameData', dummy, room=player.sessionID)
-            #emit('gameData', games[roomCode].getGameDataJSON(player.sessionID), room=player.sessionID)
+            #emit('gameData', dummy, room=player.sessionID)
+            emit('gameData', games[roomCode].getGameDataJSON(player.sessionID), room=player.sessionID)
 
 @socketio.on('join')
 def onJoin(data):
@@ -172,13 +172,17 @@ def onGameStart(data):
     if not games[roomCode].canStart(request.sid):
         emit('error', {'code': 9})
         return
-    #games[roomCode].startGame()
+    games[roomCode].startGame()
     gameNotifyAll(roomCode)
 
 @socketio.on('discard')
 def onDiscard(data):
     data = json.loads(data)
     roomCode = data["roomCode"]
+    if roomCode not in games:
+        emit('error', {'code': 10})
+        return
+    games[roomCode].discard(request.sid)
 
 @socketio.on('action')
 def onAction(data):

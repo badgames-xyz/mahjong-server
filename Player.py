@@ -4,9 +4,8 @@ allTiles = {}
 availableTiles = []
 
 class Player:
-    def __init__(self, playerID, isHost, sessionID):
+    def __init__(self, isHost, sessionID):
         names = ["Md Devlin", "Huxley Atkins", "Bilaal Sheldon", "Mark Dalton", "Tahlia Dunn", "Tala Case", "Francesca Campbell", "Rex Cassidy", "Suranne Guest", "Jamal Bridges"]
-        self.playerID = playerID
         self.playerName = random.choice(names)
         self.iconIndex = random.randint(0,3)
         self.isHost = isHost
@@ -26,12 +25,31 @@ class Player:
 
     def getLobbyPlayerJSON(self):
         json = {}
-        json["id"] = self.playerID
         json["name"] = self.playerName
         json["iconIndex"] = self.iconIndex
         json["isHost"] = self.isHost
         json["ready"] = self.isReady
         return json
+    
+    def getGamePlayerJSON(self, isCurrentPlayer):
+        json = {}
+        json["name"] = self.playerName
+        json["iconIndex"] = self.iconIndex
+        json["direction"] = self.direction
+        json["score"] = self.score
+        json["handSize"] = self.handSize
+        json["completed"] = self.completed
+        if isCurrentPlayer:
+            json["hand"] = self.hand
+            json["actions"] = self.actions
+
+    def startGame(self, direction):
+        self.direction = direction
+        self.score = 0
+        self.hand = [{'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 4}, {'suit': "circle", 'num': 3}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}]
+        self.handSize = len(self.hand)
+        self.completed = []
+        self.actions = []
 
     def changeIcon(self, index):
         self.iconIndex = index
