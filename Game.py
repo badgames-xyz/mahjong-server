@@ -14,9 +14,10 @@ class Game():
         json["roomCode"] = self.roomCode
         json["players"] = []
         for i in range(len(self.players)):
-            json["players"].append(self.players[i].getLobbyPlayerJSON())
             if self.players[i].sessionID == sessionID:
                 json["currentPlayer"] = self.players[i].getLobbyPlayerJSON()
+            else:
+                json["players"].append(self.players[i].getLobbyPlayerJSON())
         return json
 
     def getGameDataJSON(self, sessionID):
@@ -25,6 +26,7 @@ class Game():
         json["turn"] = self.turn
         json["actionTurn"] = self.actionTurn
         json["winner"] = self.winner
+        json["players"] = []
         for i in range(len(self.players)):
             if self.players[i].sessionID == sessionID:
                 json["currentPlayer"] = self.players[i].getGamePlayerJSON(True)
@@ -86,8 +88,8 @@ class Game():
         self.turn = { "suit": "special", "num": 1 }
         self.actionTurn = False
         self.winner = None
-        for i in range(len(self.players)):
-            self.players[i].startGame({ "suit": "special", "num": i })
+        for i in range(1, len(self.players) + 1):
+            self.players[i - 1].startGame({ "suit": "special", "num": i })
         self.discardPile = []
         self.drawPile = 420
 

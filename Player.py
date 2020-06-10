@@ -42,6 +42,7 @@ class Player:
         if isCurrentPlayer:
             json["hand"] = self.hand
             json["actions"] = self.actions
+        return json
 
     def startGame(self, direction):
         self.direction = direction
