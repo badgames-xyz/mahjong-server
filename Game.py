@@ -42,6 +42,7 @@ class Game():
         self.direction["num"] += 1
         if self.direction["num"] == 5:
             self.direction["num"] = 1
+        print(self.direction)
 
     def discard(self, sessionID, index):
         print("Start of discard")

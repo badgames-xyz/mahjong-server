@@ -74,6 +74,7 @@ class Player:
     def discard(self, index):
         print("player discarding")
         discarded = self.hand.pop(index)
+        print(self.hand)
         self.handSize = len(self.hand)
         return discarded
     
