@@ -36,6 +36,17 @@ class Game():
         json["drawPile"] = self.drawPile
         return json
 
+    def changeDirection(self):
+        self.direction["num"] += 1
+        if self.direction["num"] == 5:
+            self.direction["num"] = 0
+
+    def discard(self, sessionID, index):
+        for p in self.players:
+            if p.sessionID == sessionID:
+                discarded = p.discard(index)
+                self.discardPile.insert(0, discarded)
+        self.changeDirection()
 
     def createCode(self, len):
         letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

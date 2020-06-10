@@ -71,11 +71,10 @@ class Player:
         if(allTiles[drawnTile] == 0):
             availableTiles.remove(drawnTile)
     
-    def discard(self, discardTile):
-        #IN PROGRESS - need to create discard pile
-        self.hand[discardTile] -= 1
-        if (self.hand[discardTile] == 0):
-            del self.hand[discardTile]
+    def discard(self, index):
+        discarded = self.hand.pop(index)
+        self.handSize = len(self.hand)
+        return discarded
     
     def chow(self):
         "to be completed"

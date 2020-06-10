@@ -191,7 +191,8 @@ def onDiscard(data):
     if roomCode not in games:
         emit('error', {'code': 10})
         return
-    games[roomCode].discard(request.sid)
+    games[roomCode].discard(request.sid, data["index"])
+    gameNotifyAll(roomCode)
 
 @socketio.on('action')
 def onAction(data):
