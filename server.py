@@ -183,7 +183,7 @@ def onAction(data):
         if (nextPlayerSID == ""):
             emit('error', {'code': 12})
             return
-        timer = Timer(turnTime + bufferTime, defaultAction, [roomCode, nextPlayerSID])
+        timer = Timer(turnTime + bufferTime, defaultDiscard, [roomCode, nextPlayerSID])
         timer.start()
 
 
@@ -212,7 +212,7 @@ def defaultAction(roomCode):
     if (nextPlayerSID == ""):
         emit('error', {'code': 13})
         return
-    timer = Timer(turnTime + bufferTime, defaultAction, [roomCode, nextPlayerSID])
+    timer = Timer(turnTime + bufferTime, defaultDiscard, [roomCode, nextPlayerSID])
     timer.start()
     
 
