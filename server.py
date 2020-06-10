@@ -239,7 +239,7 @@ def onWin(data):
     roomCode = data["roomCode"]
 
 def defaultDiscard(roomCode, sessionID):
-    games[roomCode].discard(request.sid, 0)
+    games[roomCode].discard(sessionID, 0)
     gameNotifyAll(roomCode)
     timer = Timer(actionTime + bufferTime, defaultAction, [roomCode])
     timer.start()
