@@ -191,6 +191,7 @@ def onGameStart(data):
     games[roomCode].startGame()
     gameNotifyAll(roomCode)
     timer = Timer(turnTime + bufferTime, defaultDiscard, [roomCode, request.sid])
+    timer.start()
 
 @socketio.on('discard')
 def onDiscard(data):
@@ -205,6 +206,7 @@ def onDiscard(data):
     games[roomCode].discard(request.sid, data["index"])
     gameNotifyAll(roomCode)
     timer = Timer(actionTime + bufferTime, defaultAction, [roomCode])
+    timer.start()
 
 @socketio.on('action')
 def onAction(data):
@@ -228,6 +230,7 @@ def onAction(data):
             emit('error', {'code': 12})
             return
         timer = Timer(turnTime + bufferTime, defaultAction, [roomCode, nextPlayerSID])
+        timer.start()
 
 
 @socketio.on('win')
@@ -239,6 +242,7 @@ def defaultDiscard(roomCode, sessionID):
     games[roomCode].discard(request.sid, 0)
     gameNotifyAll(roomCode)
     timer = Timer(actionTime + bufferTime, defaultAction, [roomCode])
+    timer.start()
 
 def defaultAction(roomCode):
     for p in games[roomCode].players:
@@ -255,6 +259,7 @@ def defaultAction(roomCode):
         emit('error', {'code': 13})
         return
     timer = Timer(turnTime + bufferTime, defaultAction, [roomCode, nextPlayerSID])
+    timer.start()
     
 
 
