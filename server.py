@@ -201,7 +201,7 @@ def onAction(data):
     if roomCode not in games:
         emit('error', {'code': 11})
         return
-    shouldNotify = games[roomCode].discard(request.sid, data["index"])
+    shouldNotify = games[roomCode].action(request.sid, data["index"])
     if shouldNotify:
         gameNotifyAll(roomCode)
 
