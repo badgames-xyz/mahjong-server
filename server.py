@@ -177,7 +177,7 @@ def onAction(data):
         gameNotifyAll(roomCode)
         nextPlayerSID = ""
         for p in games[roomCode].players:
-            if games[roomCode].turn.num == p.direction.num:
+            if games[roomCode].turn["num"] == p.direction["num"]:
                 nextPlayerSID = p.sessionID
                 break
         if (nextPlayerSID == ""):
@@ -207,7 +207,7 @@ def defaultAction(roomCode):
     gameTimerNotifyAll(roomCode)
     nextPlayerSID = ""
     for p in games[roomCode].players:
-        if games[roomCode].turn.num == p.direction.num:
+        if games[roomCode].turn["num"] == p.direction["num"]:
             nextPlayerSID = p.sessionID
             break
     if (nextPlayerSID == ""):
