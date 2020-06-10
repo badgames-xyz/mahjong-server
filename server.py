@@ -10,7 +10,7 @@ from Game import Game
 from roomcodes import codes
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
 turnTime = 30
 actionTime = 10
@@ -20,56 +20,6 @@ timer = None
 
 games = {}
 
-dummy = {
-    'currentDirection': "north",
-    'turn': "ABCD",
-    'eatTurn': "",
-    'winner': "",
-    'players': [
-        {
-            'id': "ABCD",
-            'name': "BOG",
-            'iconIndex': "1",
-            'direction': "north",
-            'score': 420,
-            'handSize': 13,
-            'completed': [[{'suit': "circle", 'num': 6}, {'suit': "circle", 'num': 4}, {'suit': "circle", 'num': 2}]]
-        },
-        {
-            'id': "ABCE",
-            'name': "BOG2",
-            'iconIndex': "1",
-            'direction': "east",
-            'score': 420,
-            'handSize': 13,
-            'completed': []
-        },
-        {
-            'id': "ABCF",
-            'name': "BOG3",
-            'iconIndex': "1",
-            'direction': "south",
-            'score': 420,
-            'handSize': 13,
-            'completed': []
-        },
-    ],
-    'currentPlayer': {
-            'id': "ABCG",
-            'name': "BOG4",
-            'iconIndex': "1",
-            'direction': "west",
-            'score': 420,
-            'handSize': 13,
-            'completed': [[{'suit': "circle", 'num': 5}, {'suit': "circle", 'num': 6}, {'suit': "circle", 'num': 7}]],
-            'eatOptions': [[{'suit': "circle", 'num': 5}, {'suit': "circle", 'num': 6}, {'suit': "circle", 'num': 7}]],
-    },
-    'discardPile': [{'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 4}, {'suit': "circle", 'num': 3}],
-    'drawPile': 10
-}
-
-
-
 def lobbyNotifyAll(roomCode):
     for p in games[roomCode].players:
             emit('lobbyData', games[roomCode].getLobbyDataJSON(p.sessionID), room=p.sessionID)
@@ -78,6 +28,10 @@ def gameNotifyAll(roomCode):
     for p in games[roomCode].players:
             #emit('gameData', dummy, room=player.sessionID)
             emit('gameData', games[roomCode].getGameDataJSON(p.sessionID), room=p.sessionID)
+
+def gameTimerNotifyAll(roomCode):
+    for p in games[roomCode].players:
+        socketio.emit('gameData', games[roomCode].getGameDataJSON(p.sessionID), room=p.sessionID)
 
 @socketio.on('join')
 def onJoin(data):
@@ -240,7 +194,7 @@ def onWin(data):
 
 def defaultDiscard(roomCode, sessionID):
     games[roomCode].discard(sessionID, 0)
-    gameNotifyAll(roomCode)
+    gameTimerNotifyAll(roomCode)
     timer = Timer(actionTime + bufferTime, defaultAction, [roomCode])
     timer.start()
 
@@ -250,7 +204,7 @@ def defaultAction(roomCode):
             shouldNotify = games[roomCode].action(p.sessionID, -1)
             if shouldNotify:
                 break
-    gameNotifyAll(roomCode)
+    gameTimerNotifyAll(roomCode)
     for p in games[roomCode].players:
         if games[roomCode].turn.num == p.direction.num:
             nextPlayerSID = p.sessionID
