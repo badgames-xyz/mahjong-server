@@ -205,6 +205,7 @@ def defaultAction(roomCode):
             if shouldNotify:
                 break
     gameTimerNotifyAll(roomCode)
+    nextPlayerSID = ""
     for p in games[roomCode].players:
         if games[roomCode].turn.num == p.direction.num:
             nextPlayerSID = p.sessionID
