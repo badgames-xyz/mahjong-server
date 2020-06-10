@@ -22,6 +22,7 @@ class Game():
 
     def getGameDataJSON(self, sessionID):
         json = {}
+        json["roomCode"] = self.roomCode
         json["direction"] = self.direction
         json["turn"] = self.turn
         json["actionTurn"] = self.actionTurn
