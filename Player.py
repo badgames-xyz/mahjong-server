@@ -72,6 +72,7 @@ class Player:
             availableTiles.remove(drawnTile)
     
     def discard(self, index):
+        print("player discarding")
         discarded = self.hand.pop(index)
         self.handSize = len(self.hand)
         return discarded

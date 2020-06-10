@@ -38,15 +38,20 @@ class Game():
         return json
 
     def changeDirection(self):
+        print("changing direction")
         self.direction["num"] += 1
         if self.direction["num"] == 5:
-            self.direction["num"] = 0
+            self.direction["num"] = 1
 
     def discard(self, sessionID, index):
+        print("Start of discard")
         for p in self.players:
             if p.sessionID == sessionID:
+                print("found player, discarding:")
                 discarded = p.discard(index)
+                print(discarded)
                 self.discardPile.insert(0, discarded)
+                break
         self.changeDirection()
 
     def createCode(self, len):
