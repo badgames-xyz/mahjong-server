@@ -6,6 +6,7 @@ from flask import Flask, render_template, request
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
 import sys
 from Game import Game
+from roomcodes import codes
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -99,10 +100,21 @@ def onRefresh(data):
 
 @socketio.on('create')
 def onCreate(data):
-    game = Game()
-    games[game.roomCode] = game
+    code = createRoomCode()
+    game = Game(code)
+    games[code] = game
     game.addPlayer(True, request.sid)
     emit('lobbyData', game.getLobbyDataJSON(request.sid))
+
+def createRoomCode():
+    if len(games) == len(codes):
+        letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        return "".join(random.choice(letters) for l in range(4))
+    else:
+        code = random.choice(codes)
+        while code in games:
+            code = random.choice(codes)
+        return code
 
 @socketio.on('leave')
 def onLeave(data):

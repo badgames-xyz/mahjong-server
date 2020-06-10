@@ -2,8 +2,8 @@ from Player import Player
 import random
 
 class Game():
-    def __init__(self):
-        self.roomCode = self.createCode(4)
+    def __init__(self, roomCode):
+        self.roomCode = roomCode
         self.started = False
         self.stopped = False
         self.gameOver = False
