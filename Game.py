@@ -48,7 +48,15 @@ class Game():
                 discarded = p.discard(index)
                 self.discardPile.insert(0, discarded)
                 break
-        self.changeTurn()
+        self.actionTurn = True
+
+    def action(self, sessionID, index):
+        self.actionsReceived[sessionID] = index
+        if len(self.actionsReceived) == 4:
+            self.actionsReceived.clear()
+            self.changeTurn()
+            return True
+        return False
 
     def createCode(self, len):
         letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -105,6 +113,7 @@ class Game():
             self.players[i - 1].startGame({ "suit": "special", "num": i })
         self.discardPile = []
         self.drawPile = 420
+        self.actionsReceived = {}
 
 
 

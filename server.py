@@ -198,6 +198,12 @@ def onDiscard(data):
 def onAction(data):
     data = json.loads(data)
     roomCode = data["roomCode"]
+    if roomCode not in games:
+        emit('error', {'code': 11})
+        return
+    shouldNotify = games[roomCode].discard(request.sid, data["index"])
+    if shouldNotify:
+        gameNotifyAll(roomCode)
 
 @socketio.on('win')
 def onWin(data):
