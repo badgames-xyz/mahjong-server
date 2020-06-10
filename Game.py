@@ -35,6 +35,7 @@ class Game():
                     json["players"].append(self.players[(i + j)%4].getGamePlayerJSON(False))
         json["discardPile"] = self.discardPile
         json["drawPile"] = self.drawPile
+        print(json)
         return json
 
     def changeDirection(self):
