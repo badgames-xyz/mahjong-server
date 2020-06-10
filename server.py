@@ -5,11 +5,18 @@ import json
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
 import sys
+from threading import Timer
 from Game import Game
 from roomcodes import codes
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+turnTime = 30
+actionTime = 10
+bufferTime = 3
+
+timer = None
 
 games = {}
 
@@ -183,6 +190,7 @@ def onGameStart(data):
         return
     games[roomCode].startGame()
     gameNotifyAll(roomCode)
+    timer = Timer(turnTime + bufferTime, defaultDiscard, [roomCode, request.sid])
 
 @socketio.on('discard')
 def onDiscard(data):
@@ -191,8 +199,12 @@ def onDiscard(data):
     if roomCode not in games:
         emit('error', {'code': 10})
         return
+    if timer is not None:
+        timer.cancel()
+        timer = None
     games[roomCode].discard(request.sid, data["index"])
     gameNotifyAll(roomCode)
+    timer = Timer(actionTime + bufferTime, defaultAction, [roomCode])
 
 @socketio.on('action')
 def onAction(data):
@@ -203,12 +215,47 @@ def onAction(data):
         return
     shouldNotify = games[roomCode].action(request.sid, data["index"])
     if shouldNotify:
+        if timer is not None:
+            timer.cancel()
+            timer = None
         gameNotifyAll(roomCode)
+        nextPlayerSID = ""
+        for p in games[roomCode].players:
+            if games[roomCode].turn.num == p.direction.num:
+                nextPlayerSID = p.sessionID
+                break
+        if (nextPlayerSID == ""):
+            emit('error', {'code': 12})
+            return
+        timer = Timer(turnTime + bufferTime, defaultAction, [roomCode, nextPlayerSID])
+
 
 @socketio.on('win')
 def onWin(data):
     data = json.loads(data)
     roomCode = data["roomCode"]
+
+def defaultDiscard(roomCode, sessionID):
+    games[roomCode].discard(request.sid, 0)
+    gameNotifyAll(roomCode)
+    timer = Timer(actionTime + bufferTime, defaultAction, [roomCode])
+
+def defaultAction(roomCode):
+    for p in games[roomCode].players:
+        if p.sessionID not in games[roomCode].actionsReceived:
+            shouldNotify = games[roomCode].action(p.sessionID, -1)
+            if shouldNotify:
+                break
+    gameNotifyAll(roomCode)
+    for p in games[roomCode].players:
+        if games[roomCode].turn.num == p.direction.num:
+            nextPlayerSID = p.sessionID
+            break
+    if (nextPlayerSID == ""):
+        emit('error', {'code': 13})
+        return
+    timer = Timer(turnTime + bufferTime, defaultAction, [roomCode, nextPlayerSID])
+    
 
 
 if __name__ == '__main__':
