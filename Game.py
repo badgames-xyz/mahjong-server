@@ -35,26 +35,20 @@ class Game():
                     json["players"].append(self.players[(i + j)%4].getGamePlayerJSON(False))
         json["discardPile"] = self.discardPile
         json["drawPile"] = self.drawPile
-        print(json)
         return json
 
-    def changeDirection(self):
-        print("changing direction")
-        self.direction["num"] += 1
-        if self.direction["num"] == 5:
-            self.direction["num"] = 1
-        print(self.direction)
+    def changeTurn(self):
+        self.turn["num"] += 1
+        if self.turn["num"] == 5:
+            self.turn["num"] = 1
 
     def discard(self, sessionID, index):
-        print("Start of discard")
         for p in self.players:
             if p.sessionID == sessionID:
-                print("found player, discarding:")
                 discarded = p.discard(index)
-                print(discarded)
                 self.discardPile.insert(0, discarded)
                 break
-        self.changeDirection()
+        self.changeTurn()
 
     def createCode(self, len):
         letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

@@ -45,7 +45,6 @@ class Player:
         return json
 
     def startGame(self, direction):
-        print("starting game")
         self.direction = direction
         self.score = 0
         self.hand = [{'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 4}, {'suit': "circle", 'num': 3}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}, {'suit': "circle", 'num': 7}]
@@ -73,9 +72,7 @@ class Player:
             availableTiles.remove(drawnTile)
     
     def discard(self, index):
-        print("player discarding")
         discarded = self.hand.pop(index)
-        print(self.hand)
         self.handSize = len(self.hand)
         return discarded
     
