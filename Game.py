@@ -55,6 +55,7 @@ class Game():
         if len(self.actionsReceived) == 4:
             self.actionsReceived.clear()
             self.changeTurn()
+            self.actionTurn = False
             return True
         return False
 
