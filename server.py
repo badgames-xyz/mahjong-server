@@ -6,15 +6,12 @@ from flask import Flask, render_template, request
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
 import sys
 from threading import Timer
+
 from Game import Game
-from constants import codes
+from constants import codes, turnTime, actionTime, bufferTime
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
-
-turnTime = 30
-actionTime = 10
-bufferTime = 3
 
 timer = None
 
@@ -22,12 +19,11 @@ games = {}
 
 def lobbyNotifyAll(roomCode):
     for p in games[roomCode].players:
-            emit('lobbyData', games[roomCode].getLobbyDataJSON(p.sessionID), room=p.sessionID)
+        emit('lobbyData', games[roomCode].getLobbyDataJSON(p.sessionID), room=p.sessionID)
 
 def gameNotifyAll(roomCode):
     for p in games[roomCode].players:
-            #emit('gameData', dummy, room=player.sessionID)
-            emit('gameData', games[roomCode].getGameDataJSON(p.sessionID), room=p.sessionID)
+        emit('gameData', games[roomCode].getGameDataJSON(p.sessionID), room=p.sessionID)
 
 def gameTimerNotifyAll(roomCode):
     for p in games[roomCode].players:
@@ -218,7 +214,6 @@ def defaultAction(roomCode):
     timer = Timer(turnTime + bufferTime, defaultDiscard, [roomCode, nextPlayerSID])
     timer.start()
     
-
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=os.environ['PORT'])

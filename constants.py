@@ -1,5 +1,9 @@
 numIcons = 4
 
+turnTime = 30
+actionTime = 10
+bufferTime = 3
+
 names = [
     "Md Devlin",
     "Huxley Atkins",
