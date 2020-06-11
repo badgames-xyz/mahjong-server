@@ -191,6 +191,7 @@ def onWin(data):
     roomCode = data["roomCode"]
 
 def defaultDiscard(roomCode, sessionID):
+    global timer
     if roomCode not in games:
         timer = None
         return
@@ -200,6 +201,7 @@ def defaultDiscard(roomCode, sessionID):
     timer.start()
 
 def defaultAction(roomCode):
+    global timer
     if roomCode not in games:
         timer = None
         return
