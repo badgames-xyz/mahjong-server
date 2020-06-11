@@ -175,7 +175,7 @@ def onAction(data):
         gameNotifyAll(roomCode)
         nextPlayerSID = ""
         for p in games[roomCode].players:
-            if games[roomCode].turn["num"] == p.direction["num"]:
+            if games[roomCode].turn.num == p.direction.num:
                 nextPlayerSID = p.sessionID
                 break
         if (nextPlayerSID == ""):
@@ -191,12 +191,18 @@ def onWin(data):
     roomCode = data["roomCode"]
 
 def defaultDiscard(roomCode, sessionID):
+    if roomCode not in games:
+        timer = None
+        return
     games[roomCode].discard(sessionID, 0)
     gameTimerNotifyAll(roomCode)
     timer = Timer(actionTime + bufferTime, defaultAction, [roomCode])
     timer.start()
 
 def defaultAction(roomCode):
+    if roomCode not in games:
+        timer = None
+        return
     for p in games[roomCode].players:
         if p.sessionID not in games[roomCode].actionsReceived:
             shouldNotify = games[roomCode].action(p.sessionID, -1)
@@ -205,7 +211,7 @@ def defaultAction(roomCode):
     gameTimerNotifyAll(roomCode)
     nextPlayerSID = ""
     for p in games[roomCode].players:
-        if games[roomCode].turn["num"] == p.direction["num"]:
+        if games[roomCode].turn.num == p.direction.num:
             nextPlayerSID = p.sessionID
             break
     if (nextPlayerSID == ""):

@@ -1,5 +1,7 @@
-from Player import Player
 import random
+
+from Player import Player
+from Card import Card
 
 class Game():
     def __init__(self, roomCode):
@@ -23,8 +25,8 @@ class Game():
     def getGameDataJSON(self, sessionID):
         json = {}
         json["roomCode"] = self.roomCode
-        json["direction"] = self.direction
-        json["turn"] = self.turn
+        json["direction"] = self.direction.toJSON()
+        json["turn"] = self.turn.toJSON()
         json["actionTurn"] = self.actionTurn
         json["winner"] = self.winner
         json["players"] = []
@@ -33,14 +35,14 @@ class Game():
                 json["currentPlayer"] = self.players[i].getGamePlayerJSON(True)
                 for j in range(1,4):
                     json["players"].append(self.players[(i + j)%4].getGamePlayerJSON(False))
-        json["discardPile"] = self.discardPile
+        json["discardPile"] = [x.toJSON() for x in self.discardPile]
         json["drawPile"] = self.drawPile
         return json
 
     def changeTurn(self):
-        self.turn["num"] += 1
-        if self.turn["num"] == 5:
-            self.turn["num"] = 1
+        self.turn.num += 1
+        if self.turn.num == 5:
+            self.turn.num = 1
 
     def discard(self, sessionID, index):
         for p in self.players:
@@ -106,12 +108,12 @@ class Game():
         return True
 
     def startGame(self):
-        self.direction = { "suit": "special", "num": 1 }
-        self.turn = { "suit": "special", "num": 1 }
+        self.direction = Card.special(1)
+        self.turn = Card.special(1)
         self.actionTurn = False
         self.winner = None
         for i in range(1, len(self.players) + 1):
-            self.players[i - 1].startGame({ "suit": "special", "num": i })
+            self.players[i - 1].startGame(Card.special(i))
         self.discardPile = []
         self.drawPile = 420
         self.actionsReceived = {}
