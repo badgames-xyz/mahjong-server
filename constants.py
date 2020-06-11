@@ -1,3 +1,28 @@
+numIcons = 4
+
+names = [
+    "Md Devlin",
+    "Huxley Atkins",
+    "Bilaal Sheldon",
+    "Mark Dalton",
+    "Tahlia Dunn",
+    "Tala Case",
+    "Francesca Campbell",
+    "Rex Cassidy",
+    "Suranne Guest",
+    "Jamal Bridges",
+    "Idonea Alyssia",
+    "Clancy Cecilia",
+    "Edie Mikki",
+    "Linden Esther",
+    "Timmy Gwenevere",
+    "Ji-Woo Yūdai",
+    "Akiko Wakana",
+    "Mio Miki",
+    "Yua Min-Ji",
+    "Masaru Myeong",
+]
+
 codes = [
     "JUST",
     "VERY",

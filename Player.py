@@ -1,13 +1,14 @@
 import random
 
+from constants import names, numIcons
+
 allTiles = {}
 availableTiles = []
 
 class Player:
     def __init__(self, isHost, sessionID):
-        names = ["Md Devlin", "Huxley Atkins", "Bilaal Sheldon", "Mark Dalton", "Tahlia Dunn", "Tala Case", "Francesca Campbell", "Rex Cassidy", "Suranne Guest", "Jamal Bridges"]
         self.playerName = random.choice(names)
-        self.iconIndex = random.randint(0,3)
+        self.iconIndex = random.randint(0, numIcons - 1)
         self.isHost = isHost
         self.isReady = isHost
         self.sessionID = sessionID

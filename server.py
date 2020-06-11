@@ -7,7 +7,7 @@ from flask_socketio import SocketIO, join_room, leave_room, send, emit
 import sys
 from threading import Timer
 from Game import Game
-from roomcodes import codes
+from constants import codes
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
