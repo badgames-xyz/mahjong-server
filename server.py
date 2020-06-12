@@ -146,6 +146,8 @@ def onGameStart(data):
 @socketio.on('discard')
 def onDiscard(data):
     global timer
+    if timer != None:
+        timer.cancel()
     data = json.loads(data)
     roomCode = data["roomCode"]
     if roomCode not in games:
@@ -162,6 +164,8 @@ def onDiscard(data):
 @socketio.on('action')
 def onAction(data):
     global timer
+    if timer != None:
+        timer.cancel()
     data = json.loads(data)
     roomCode = data["roomCode"]
     if roomCode not in games:
@@ -192,6 +196,8 @@ def onWin(data):
 
 def defaultDiscard(roomCode, sessionID):
     global timer
+    if timer != None:
+        timer.cancel()
     if roomCode not in games:
         timer = None
         return
@@ -202,6 +208,8 @@ def defaultDiscard(roomCode, sessionID):
 
 def defaultAction(roomCode):
     global timer
+    if timer != None:
+        timer.cancel()
     if roomCode not in games:
         timer = None
         return
