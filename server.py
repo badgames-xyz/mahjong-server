@@ -5,10 +5,9 @@ import json
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
 import sys
-from threading import Timer
 
 from Game import Game
-from constants import codes, turnTime, actionTime, bufferTime
+from constants import codes
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
@@ -16,6 +15,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 timer = None
 
 games = {}
+timers = {}
 
 def lobbyNotifyAll(roomCode):
     for p in games[roomCode].players:
@@ -140,32 +140,21 @@ def onGameStart(data):
         return
     games[roomCode].startGame()
     gameNotifyAll(roomCode)
-    timer = Timer(turnTime + bufferTime, defaultDiscard, [roomCode, request.sid])
-    timer.start()
+    games[roomCode].startDiscardTimer(gameTimerNotifyAll)
 
 @socketio.on('discard')
 def onDiscard(data):
-    global timer
-    if timer != None:
-        timer.cancel()
     data = json.loads(data)
     roomCode = data["roomCode"]
     if roomCode not in games:
         emit('error', {'code': 10})
         return
-    if timer is not None:
-        timer.cancel()
-        timer = None
     games[roomCode].discard(request.sid, data["index"])
     gameNotifyAll(roomCode)
-    timer = Timer(actionTime + bufferTime, defaultAction, [roomCode])
-    timer.start()
+    games[roomCode].startActionTimer(gameTimerNotifyAll)
 
 @socketio.on('action')
 def onAction(data):
-    global timer
-    if timer != None:
-        timer.cancel()
     data = json.loads(data)
     roomCode = data["roomCode"]
     if roomCode not in games:
@@ -173,62 +162,13 @@ def onAction(data):
         return
     shouldNotify = games[roomCode].action(request.sid, data["index"])
     if shouldNotify:
-        if timer is not None:
-            timer.cancel()
-            timer = None
         gameNotifyAll(roomCode)
-        nextPlayerSID = ""
-        for p in games[roomCode].players:
-            if games[roomCode].turn.num == p.direction.num:
-                nextPlayerSID = p.sessionID
-                break
-        if (nextPlayerSID == ""):
-            emit('error', {'code': 12})
-            return
-        timer = Timer(turnTime + bufferTime, defaultDiscard, [roomCode, nextPlayerSID])
-        timer.start()
-
+        games[roomCode].startDiscardTimer(gameTimerNotifyAll)
 
 @socketio.on('win')
 def onWin(data):
     data = json.loads(data)
     roomCode = data["roomCode"]
-
-def defaultDiscard(roomCode, sessionID):
-    global timer
-    if timer != None:
-        timer.cancel()
-    if roomCode not in games:
-        timer = None
-        return
-    games[roomCode].discard(sessionID, 0)
-    gameTimerNotifyAll(roomCode)
-    timer = Timer(actionTime + bufferTime, defaultAction, [roomCode])
-    timer.start()
-
-def defaultAction(roomCode):
-    global timer
-    if timer != None:
-        timer.cancel()
-    if roomCode not in games:
-        timer = None
-        return
-    for p in games[roomCode].players:
-        if p.sessionID not in games[roomCode].actionsReceived:
-            shouldNotify = games[roomCode].action(p.sessionID, -1)
-            if shouldNotify:
-                break
-    gameTimerNotifyAll(roomCode)
-    nextPlayerSID = ""
-    for p in games[roomCode].players:
-        if games[roomCode].turn.num == p.direction.num:
-            nextPlayerSID = p.sessionID
-            break
-    if (nextPlayerSID == ""):
-        emit('error', {'code': 13})
-        return
-    timer = Timer(turnTime + bufferTime, defaultDiscard, [roomCode, nextPlayerSID])
-    timer.start()
     
 
 if __name__ == '__main__':

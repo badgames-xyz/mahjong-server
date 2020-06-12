@@ -1,7 +1,10 @@
 import random
+from threading import Timer
 
 from Player import Player
 from Card import Card
+
+from constants import turnTime, actionTime, bufferTime
 
 class Game():
     def __init__(self, roomCode):
@@ -10,6 +13,8 @@ class Game():
         self.stopped = False
         self.gameOver = False
         self.players = []
+
+        self.timer = None
     
     def getLobbyDataJSON(self, sessionID):
         json = {}
@@ -118,5 +123,45 @@ class Game():
         self.drawPile = 420
         self.actionsReceived = {}
 
+    def startDiscardTimer(self, callBack):
+        self.cancelTimer()
+        self.timer = Timer(turnTime + bufferTime, self.defaultDiscard, [callBack])
+        self.timer.start()
 
+    def startActionTimer(self, callBack):
+        self.cancelTimer()
+        self.timer = Timer(actionTime + bufferTime, self.defaultAction, [callBack])
+        self.timer.start()
 
+    def defaultDiscard(self, callBack):
+        self.cancelTimer()
+        self.discard(self.playerFromDirection(self.turn).sessionID, 0)
+        callBack(self.roomCode)
+        self.startActionTimer(callBack)
+
+    def defaultAction(self, callBack):
+        self.cancelTimer()
+        for p in self.players:
+            if p.sessionID not in self.actionsReceived:
+                shouldNotify = self.action(p.sessionID, -1)
+                if shouldNotify:
+                    break
+        callBack(self.roomCode)
+        self.startDiscardTimer(callBack)
+
+    def cancelTimer(self):
+        if self.timer is not None:
+            self.timer.cancel()
+            self.timer = None
+
+    def playerFromDirection(self, direction):
+        for p in self.players:
+            if p.direction == direction:
+                return p
+        print(f"Player not found given direction {direction}")
+
+    def playerFromSessionID(self, sessionID):
+        for p in self.players:
+            if p.sessionID == sessionID:
+                return p
+        print(f"Player not found given session ID {sessionID}")
