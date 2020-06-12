@@ -33,6 +33,9 @@ class Card:
             "suit": self.suit,
             "num": self.num,
         }
+
+    def __str__(self):
+        return f"Suit: {self.suit}, Num: {self.num}"
     
     def __lt__(self, other):
         if order[self.suit] < order[other.suit]:

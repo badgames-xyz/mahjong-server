@@ -50,11 +50,8 @@ class Game():
             self.turn.num = 1
 
     def discard(self, sessionID, index):
-        for p in self.players:
-            if p.sessionID == sessionID:
-                discarded = p.discard(index)
-                self.discardPile.insert(0, discarded)
-                break
+        discarded = self.playerFromSessionID(sessionID).discard(index)
+        self.discardPile.insert(0, discarded)
         self.actionTurn = True
 
     def action(self, sessionID, index):
@@ -86,27 +83,20 @@ class Game():
                 return not self.players
     
     def changeIcon(self, sessionID, index):
-        for p in self.players:
-            if p.sessionID == sessionID:
-                p.changeIcon(index)
+        self.playerFromSessionID(sessionID).changeIcon(index)
 
     def changeName(self, sessionID, newName):
-        for p in self.players:
-            if p.sessionID == sessionID:
-                p.changeName(newName)
+        self.playerFromSessionID(sessionID).changeName(newName)
 
     def playerReady(self, sessionID, readyStatus):
-        for p in self.players:
-            if p.sessionID == sessionID:
-                p.ready(readyStatus)
+        self.playerFromSessionID(sessionID).ready(readyStatus)
 
     def canStart(self, sessionID):
         if len(self.players) != 4:
             return False
-        for p in self.players:
-            if p.sessionID == sessionID: 
-                if not p.isHost:
-                    return False
+        player = self.playerFromSessionID(sessionID)
+        if not player.isHost:
+            return False
         for p in self.players:
             if not p.isReady:
                 return False
