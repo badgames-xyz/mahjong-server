@@ -2,7 +2,7 @@ import random
 from threading import Timer
 
 from Player import Player
-from Card import Card
+from Card import Card, createDeck
 
 from constants import turnTime, actionTime, bufferTime
 
@@ -59,6 +59,7 @@ class Game():
         if len(self.actionsReceived) == 4:
             self.actionsReceived.clear()
             self.changeTurn()
+            self.playerFromDirection(self.turn).draw(self.deck.pop())
             self.actionTurn = False
             return True
         return False
@@ -110,8 +111,14 @@ class Game():
         for i in range(1, len(self.players) + 1):
             self.players[i - 1].startGame(Card.special(i))
         self.discardPile = []
-        self.drawPile = 420
+        self.deck = createDeck()
+        self.drawPile = len(self.deck)
         self.actionsReceived = {}
+
+        # all players draw 13 cards, first player draws 14
+        for p in self.players:
+            p.setHand([self.deck.pop() for i in range(13)])
+        self.players[0].draw(self.deck.pop())
 
     def startDiscardTimer(self, callBack):
         self.cancelTimer()
