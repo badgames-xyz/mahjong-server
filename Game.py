@@ -52,7 +52,22 @@ class Game():
     def discard(self, sessionID, index):
         discarded = self.playerFromSessionID(sessionID).discard(index)
         self.discardPile.insert(0, discarded)
+        self.createActions(sessionID, discarded)
         self.actionTurn = True
+
+    def createActions(self, sid, card):
+        numPlayers = len(self.players)
+        ind = 0
+        for i in range(numPlayers):
+            if self.players[i].sessionID == sid:
+                ind = i
+                break
+        for i in range(1, numPlayers):
+            p = self.players[(ind + i) % numPlayers]
+            if (i == 1):
+                p.createActions(card, True)
+            else:
+                p.createActions(card)
 
     def action(self, sessionID, index):
         self.actionsReceived[sessionID] = index
