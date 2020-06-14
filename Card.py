@@ -11,15 +11,17 @@ suits = ["char", "circle", "stick", "special"]
 
 def createDeck():
     deck = []
-    for suit in order:
-        lim = 10
-        if suit == "special":
-            lim = 8
-        for num in range(1, lim):
-            for i in range(4):
-                deck.append(Card(suit, num))
-    assert len(deck) == 136
-    random.shuffle(deck)
+    # for suit in order:
+    #     lim = 10
+    #     if suit == "special":
+    #         lim = 8
+    #     for num in range(1, lim):
+    #         for i in range(4):
+    #             deck.append(Card(suit, num))
+    # assert len(deck) == 136
+    # random.shuffle(deck)
+    for i in range(200):
+        deck.append(Card.char(1))
     return deck
 
 class Card:
@@ -67,6 +69,15 @@ class Card:
             print("No down card for a 1 tile")
         else:
             return Card(self.suit, self.num - 1)
+
+    def nextDirection(self):
+        if self.suit != "special" or self.num > 4:
+            print("Next direction only for special direction tiles.")
+        else:
+            val = self.num + 1
+            if val > 4:
+                val = 1
+            return Card.special(val)
 
     def getPossibleChows(self):
         chows = []

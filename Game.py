@@ -4,7 +4,8 @@ from threading import Timer
 from Player import Player
 from Card import Card, createDeck
 
-from constants import turnTime, actionTime, bufferTime
+from constants import turnTime, actionTime, bufferTime, timeBetweenGames
+import time
 
 class Game():
     def __init__(self, roomCode):
@@ -99,13 +100,11 @@ class Game():
                     if actionIndex == -1:
                         continue
                     action = p.actions[actionIndex]
-                    extraCard = action.taken
-                    if p.canWinWith(extraCard):
-                        # give it to this player. TODO: player must declare win
-                        p.addCompleted(action.cards, extraCard)
-                        settled = True
-                        nextPlayer = p.sessionID
-                        break
+                    if action.winningAction:
+                        # give it to this player.
+                        p.doAction(action)
+                        self.win(p.sessionID)
+                        return True
 
                 if not settled:
                     # check pong/kong in clockwise order
@@ -115,31 +114,39 @@ class Game():
                         if actionIndex == -1:
                             continue
                         action = p.actions[actionIndex]
-                        extraCard = action.taken
-                        p.addCompleted(action.cards, extraCard)
+                        p.doAction(action)
                         settled = True
                         nextPlayer = p.sessionID
                         break
 
                 if not settled:
                     # check for chow
-                    for i in range(1, numPlayers):
-                        p = self.players[(ind + i) % numPlayers]
-                        actionIndex = self.actionsReceived[p.sessionID]
-                        if actionIndex == -1:
-                            continue
+                    p = self.players[(ind + 1) % numPlayers]
+                    actionIndex = self.actionsReceived[p.sessionID]
+                    if actionIndex != -1:
                         action = p.actions[actionIndex]
-                        extraCard = action.taken
-                        p.addCompleted(action.cards, extraCard)
+                        p.doAction(action)
                         nextPlayer = p.sessionID
-                        break
 
             self.actionsReceived.clear()
             self.changeTurn(nextPlayer)
             self.playerFromDirection(self.turn).draw(self.deck.pop())
+            self.drawPile = len(self.deck)
             self.actionTurn = False
             return True
         return False
+
+    def win(self, sessionID):
+        winner = self.playerFromSessionID(sessionID)
+        self.winner = sessionID
+        if winner.direction == self.leaderDirection:
+            self.winStreak += 1
+        else:
+            self.leaderDirection = self.leaderDirection.nextDirection()
+            self.winStreak = 0
+        winner.updateScore(self.winStreak)
+        
+
 
     def createCode(self, len):
         letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -191,11 +198,36 @@ class Game():
         self.deck = createDeck()
         self.drawPile = len(self.deck)
         self.actionsReceived = {}
+        self.leaderDirection = Card.special(1)
+        self.winStreak = 0
 
         # all players draw 13 cards, first player draws 14
         for p in self.players:
             p.setHand([self.deck.pop() for i in range(13)])
         self.players[0].draw(self.deck.pop())
+        self.drawPile = len(self.deck)
+
+    def nextGame(self):
+        changeDirection = self.winStreak > 0
+        if changeDirection:
+            self.leaderDirection.nextDirection()
+            if self.leaderDirection == self.direction:
+                self.direction = self.direction.nextDirection()
+        self.turn = self.leaderDirection
+        self.actionTurn = False
+        self.winner = None
+        for p in self.players:
+            p.nextGame(changeDirection)
+        self.discardPile = []
+        self.deck = createDeck()
+        self.drawPile = len(self.deck)
+        self.actionsReceived = {}
+
+        # all players draw 13 cards, first player draws 14
+        for p in self.players:
+            p.setHand([self.deck.pop() for i in range(13)])
+        self.playerFromDirection(self.turn).draw(self.deck.pop())
+
 
     def startDiscardTimer(self, callBack):
         self.cancelTimer()
@@ -218,8 +250,11 @@ class Game():
         for p in self.players:
             if p.sessionID not in self.actionsReceived:
                 shouldNotify = self.action(p.sessionID, -1)
-                if shouldNotify:
-                    break
+                if shouldNotify and self.winner is not None:
+                    callBack(self.roomCode)
+                    # wait a few seconds then start the next game
+                    time.sleep(timeBetweenGames)
+                    self.nextGame()
         callBack(self.roomCode)
         self.startDiscardTimer(callBack)
 

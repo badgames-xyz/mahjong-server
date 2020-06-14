@@ -7,7 +7,7 @@ from flask_socketio import SocketIO, join_room, leave_room, send, emit
 import sys
 
 from Game import Game
-from constants import codes
+from constants import codes, timeBetweenGames
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
@@ -162,13 +162,29 @@ def onAction(data):
         return
     shouldNotify = games[roomCode].action(request.sid, data["index"])
     if shouldNotify:
-        gameNotifyAll(roomCode)
-        games[roomCode].startDiscardTimer(gameTimerNotifyAll)
+        if games[roomCode].winner is not None:
+            nextGame(roomCode)
+        else:
+            gameNotifyAll(roomCode)
+            games[roomCode].startDiscardTimer(gameTimerNotifyAll)
 
 @socketio.on('win')
 def onWin(data):
     data = json.loads(data)
     roomCode = data["roomCode"]
+    # check if can win first
+    game = games[roomCode]
+    if game.canWin():
+        game.win(request.sid)
+        nextGame(roomCode)
+
+def nextGame(roomCode):
+    gameNotifyAll(roomCode)
+    # wait a few seconds then start the next game
+    time.sleep(timeBetweenGames)
+    games[roomCode].nextGame()
+    gameNotifyAll(roomCode)
+    games[roomCode].startDiscardTimer(gameTimerNotifyAll)
     
 
 if __name__ == '__main__':

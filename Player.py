@@ -50,6 +50,7 @@ class Player:
             else:
                 json["lastDrawn"] = None
             json["actions"] = [x.toJSON() for x in self.actions]
+            json["canWin"] = self.canWin()
         return json
 
     def startGame(self, direction):
@@ -60,6 +61,15 @@ class Player:
         self.completed = []
         self.actions = []
         self.lastDrawn = None
+
+    def nextGame(self, changeDirection=True):
+        self.hand = []
+        self.handSize = 0
+        self.completed = []
+        self.actions = []
+        self.lastDrawn = None
+        if changeDirection:
+            self.direction = self.direction.nextDirection()
 
     def changeIcon(self, index):
         self.iconIndex = index
@@ -96,12 +106,18 @@ class Player:
     def createActions(self, card, nextTurn=False):
         # populate self.actions with chow, pong, kong, eyes
         # eyes only if winning, chow if nextTurn is True or if winning
-        if self.hand.count(card) == 2:
+        canWin = self.canWinWith(card)
+
+        if self.hand.count(card) >= 2:
             self.actions.append(Action.pong(card, card))
-        if self.hand.count(card) == 3:
+            if canWin:
+                self.actions.append(Action.winPong(card, card))
+        if self.hand.count(card) >= 3:
             self.actions.append(Action.kong(card, card))
+            if canWin:
+                self.actions.append(Action.winKong(card, card))
         
-        if nextTurn or self.canWinWith(card):
+        if nextTurn:
             possibleChows = card.getPossibleChows()
             for chow in possibleChows:
                 canAdd = True
@@ -111,9 +127,14 @@ class Player:
                         break
                 if canAdd:
                     self.actions.append(Action.chow(chow[0], card))
+                    if canWin:
+                        self.actions.append(Action.winChow(chow[0], card))
 
         if self.needEyes(card):
-            self.actions.append(Action.eyes(card, card))
+            self.actions.append(Action.winEyes(card, card))
+
+    def doAction(self, action):
+        self.addCompleted(action.cards, action.taken)
 
     def resetActions(self):
         self.actions.clear()
@@ -125,7 +146,7 @@ class Player:
         handCopy = [c.copy() for c in self.hand]
         handCopy.remove(card)
         for suit in suits:
-            subHand = [c.copy() for c in handCopy if c.suit == suit]
+            subHand = [c for c in handCopy if c.suit == suit]
             if not self.checkSubHand(subHand):
                 return False
         return True
@@ -170,6 +191,7 @@ class Player:
                     break
             if winning:
                 return True
+            temp = copyHand(hand)
         return False
 
     # given an array of cards of all the same suit, returns true if it
@@ -191,7 +213,7 @@ class Player:
             for s in subHand:
                 count[s.num - 1] += 1
             for i in range(len(count)):
-                if count[i] >= 3:
+                while count[i] >= 3:
                     count[i] -= 3
             for i in range(7): # sliding window of size 3
                 if count[i] > 0:
@@ -201,3 +223,7 @@ class Player:
             for c in count:
                 if c != 0:
                     return False
+        return True
+
+    def updateScore(self, winStreak):
+        pass
