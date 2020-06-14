@@ -115,6 +115,9 @@ class Game():
                             continue
                         action = p.actions[actionIndex]
                         p.doAction(action)
+                        if action.group == "kong":
+                            p.draw(self.deck.pop())
+                            self.drawPile = len(self.deck)
                         settled = True
                         nextPlayer = p.sessionID
                         break
@@ -127,11 +130,13 @@ class Game():
                         action = p.actions[actionIndex]
                         p.doAction(action)
                         nextPlayer = p.sessionID
+            else:
+                # everyone passes, next player draws a card
+                self.playerFromSessionID(nextPlayer).draw(self.deck.pop())
+                self.drawPile = len(self.deck)
 
             self.actionsReceived.clear()
             self.changeTurn(nextPlayer)
-            self.playerFromDirection(self.turn).draw(self.deck.pop())
-            self.drawPile = len(self.deck)
             self.actionTurn = False
             return True
         return False

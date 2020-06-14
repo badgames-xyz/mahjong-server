@@ -174,7 +174,7 @@ def onWin(data):
     roomCode = data["roomCode"]
     # check if can win first
     game = games[roomCode]
-    if game.canWin():
+    if game.playerFromSessionID(request.sid).canWin():
         game.win(request.sid)
         nextGame(roomCode)
 

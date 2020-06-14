@@ -20,13 +20,6 @@ class Player:
     def __repr__(self):
         return str((self.user,self.hand,self.coins,self.seat))
 
-    #def start(self):
-    #    self.user = userNum
-    #    self.hand = hand
-    #    self.coins = coins
-    #    self.seat = seat
-    #    self.host = host
-
     def getLobbyPlayerJSON(self):
         json = {}
         json["name"] = self.playerName
