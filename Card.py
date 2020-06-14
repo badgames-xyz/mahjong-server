@@ -79,6 +79,15 @@ class Card:
                 val = 1
             return Card.special(val)
 
+    def prevDirection(self):
+        if self.suit != "special" or self.num > 4:
+            print("Next direction only for special direction tiles.")
+        else:
+            val = self.num - 1
+            if val < 1:
+                val = 4
+            return Card.special(val)
+
     def getPossibleChows(self):
         chows = []
         if self.suit == "special":

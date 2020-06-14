@@ -62,7 +62,7 @@ class Player:
         self.actions = []
         self.lastDrawn = None
         if changeDirection:
-            self.direction = self.direction.nextDirection()
+            self.direction = self.direction.prevDirection()
 
     def changeIcon(self, index):
         self.iconIndex = index

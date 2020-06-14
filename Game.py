@@ -218,7 +218,7 @@ class Game():
         self.drawPile = len(self.deck)
 
     def nextGame(self):
-        changeDirection = self.winStreak > 0
+        changeDirection = self.winStreak == 0
         if changeDirection:
             self.leaderDirection.nextDirection()
             if self.leaderDirection == self.direction:
