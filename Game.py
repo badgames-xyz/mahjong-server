@@ -44,16 +44,18 @@ class Game():
         json["drawPile"] = self.drawPile
         return json
 
-    def changeTurn(self):
-        self.turn.num += 1
-        if self.turn.num == 5:
-            self.turn.num = 1
+    def changeTurn(self, sessionID):
+        self.turn = self.playerFromSessionID(sessionID).direction
 
     def discard(self, sessionID, index):
         discarded = self.playerFromSessionID(sessionID).discard(index)
         self.discardPile.insert(0, discarded)
+        for p in self.players:
+            p.resetActions()
         self.createActions(sessionID, discarded)
         self.actionTurn = True
+        # player discarding can only pass
+        self.action(sessionID, -1)
 
     def createActions(self, sid, card):
         numPlayers = len(self.players)
@@ -72,8 +74,68 @@ class Game():
     def action(self, sessionID, index):
         self.actionsReceived[sessionID] = index
         if len(self.actionsReceived) == 4:
+            # given all actions, determine who gets it
+            numPlayers = len(self.players)
+            curPlayer = self.playerFromDirection(self.turn)
+            ind = 0
+            for i in range(numPlayers):
+                if self.players[i].sessionID == curPlayer.sessionID:
+                    ind = i
+                    break
+            settled = False
+
+            nextPlayer = self.players[(ind + 1) % numPlayers].sessionID
+            anyoneWants = False
+            for sid in self.actionsReceived:
+                if self.actionsReceived[sid] >= 0:
+                    anyoneWants = True
+                    break
+
+            if anyoneWants:
+                # check winning moves in counter clockwise order
+                for i in range(1, numPlayers):
+                    p = self.players[(ind + i) % numPlayers]
+                    actionIndex = self.actionsReceived[p.sessionID]
+                    if actionIndex == -1:
+                        continue
+                    action = p.actions[actionIndex]
+                    extraCard = action.taken
+                    if p.canWinWith(extraCard):
+                        # give it to this player. TODO: player must declare win
+                        p.addCompleted(action.cards, extraCard)
+                        settled = True
+                        nextPlayer = p.sessionID
+                        break
+
+                if not settled:
+                    # check pong/kong in clockwise order
+                    for i in range(1, numPlayers):
+                        p = self.players[ind - i]
+                        actionIndex = self.actionsReceived[p.sessionID]
+                        if actionIndex == -1:
+                            continue
+                        action = p.actions[actionIndex]
+                        extraCard = action.taken
+                        p.addCompleted(action.cards, extraCard)
+                        settled = True
+                        nextPlayer = p.sessionID
+                        break
+
+                if not settled:
+                    # check for chow
+                    for i in range(1, numPlayers):
+                        p = self.players[(ind + i) % numPlayers]
+                        actionIndex = self.actionsReceived[p.sessionID]
+                        if actionIndex == -1:
+                            continue
+                        action = p.actions[actionIndex]
+                        extraCard = action.taken
+                        p.addCompleted(action.cards, extraCard)
+                        nextPlayer = p.sessionID
+                        break
+
             self.actionsReceived.clear()
-            self.changeTurn()
+            self.changeTurn(nextPlayer)
             self.playerFromDirection(self.turn).draw(self.deck.pop())
             self.actionTurn = False
             return True

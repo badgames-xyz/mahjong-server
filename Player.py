@@ -42,7 +42,7 @@ class Player:
         json["direction"] = self.direction.toJSON()
         json["score"] = self.score
         json["handSize"] = self.handSize
-        json["completed"] = self.completed
+        json["completed"] = [[c.toJSON() for c in x] for x in self.completed]
         if isCurrentPlayer:
             json["hand"] = [x.toJSON() for x in self.hand]
             if self.lastDrawn:
@@ -80,6 +80,14 @@ class Player:
         self.handSize = len(self.hand)
         self.lastDrawn = card
 
+    def addCompleted(self, cards, extra):
+        self.completed.append(cards)
+        copy = [c.copy() for c in cards]
+        copy.remove(extra)
+        for c in copy:
+            self.hand.remove(c)
+        self.handSize = len(self.hand)
+
     def discard(self, index):
         discarded = self.hand.pop(index)
         self.handSize = len(self.hand)
@@ -89,9 +97,9 @@ class Player:
         # populate self.actions with chow, pong, kong, eyes
         # eyes only if winning, chow if nextTurn is True or if winning
         if self.hand.count(card) == 2:
-            self.actions.append(Action.pong(card))
+            self.actions.append(Action.pong(card, card))
         if self.hand.count(card) == 3:
-            self.actions.append(Action.kong(card))
+            self.actions.append(Action.kong(card, card))
         
         if nextTurn or self.canWinWith(card):
             possibleChows = card.getPossibleChows()
@@ -102,10 +110,13 @@ class Player:
                         canAdd = False
                         break
                 if canAdd:
-                    self.actions.append(Action.chow(chow[0]))
+                    self.actions.append(Action.chow(chow[0], card))
 
         if self.needEyes(card):
-            self.actions.append(Action.eyes(card))
+            self.actions.append(Action.eyes(card, card))
+
+    def resetActions(self):
+        self.actions.clear()
 
     def needEyes(self, card):
         # given a card, can the player use it to form the eyes to win

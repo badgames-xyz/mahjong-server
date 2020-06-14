@@ -1,26 +1,27 @@
 from Card import Card
 
 class Action:
-    def __init__(self, group, start):
+    def __init__(self, group, start, taken):
         self.group = group
         self.start = start
+        self.taken = taken
         self.cards = self.createCards()
 
     @classmethod
-    def chow(cls, start):
-        return Action("chow", start)
+    def chow(cls, start, taken):
+        return Action("chow", start, taken)
 
     @classmethod
-    def pong(cls, start):
-        return Action("pong", start)
+    def pong(cls, start, taken):
+        return Action("pong", start, taken)
 
     @classmethod
-    def kong(cls, start):
-        return Action("kong", start)
+    def kong(cls, start, taken):
+        return Action("kong", start, taken)
 
     @classmethod
-    def eyes(cls, start):
-        return Action("eyes", start)
+    def eyes(cls, start, taken):
+        return Action("eyes", start, taken)
 
     def createCards(self):
         cards = []
@@ -39,5 +40,6 @@ class Action:
     def toJSON(self):
         return {
             "type": self.group,
-            "cards": [x.toJSON() for x in self.cards]
+            "taken": self.taken.toJSON(),
+            "cards": [x.toJSON() for x in self.cards],
         }
