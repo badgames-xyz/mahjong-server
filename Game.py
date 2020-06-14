@@ -36,6 +36,11 @@ class Game():
         json["actionTurn"] = self.actionTurn
         json["winner"] = self.winner
         json["players"] = []
+        if self.actionTurn:
+            json["time"] = actionTime
+        else:
+            json["time"] = turnTime
+        json["timeLeft"] = 0 # TODO
         for i in range(len(self.players)):
             if self.players[i].sessionID == sessionID:
                 json["currentPlayer"] = self.players[i].getGamePlayerJSON(True)
