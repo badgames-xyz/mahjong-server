@@ -55,6 +55,9 @@ class Game():
         for p in self.players:
             p.lastDrawn = None
 
+    def removeDiscardCard(self):
+        self.discardPile.pop(0)
+
     def changeTurn(self, sessionID):
         self.turn = self.playerFromSessionID(sessionID).direction
 
@@ -116,6 +119,7 @@ class Game():
                     if action.winningAction:
                         # give it to this player.
                         p.doAction(action)
+                        self.removeDiscardCard()
                         self.win(p.sessionID)
                         return True
 
@@ -128,6 +132,7 @@ class Game():
                             continue
                         action = p.actions[actionIndex]
                         p.doAction(action)
+                        self.removeDiscardCard()
                         if action.group == "kong":
                             p.draw(self.deck.pop())
                             self.drawPile = len(self.deck)
@@ -143,6 +148,7 @@ class Game():
                     if actionIndex != -1:
                         action = p.actions[actionIndex]
                         p.doAction(action)
+                        self.removeDiscardCard()
                         nextPlayer = p.sessionID
                     p.recentAction = True
             else:
@@ -218,7 +224,6 @@ class Game():
             self.players[i - 1].startGame(Card.special(i))
         self.discardPile = []
         self.deck = createDeck()
-        self.drawPile = len(self.deck)
         self.actionsReceived = {}
         self.gamesPlayed = 0
         self.winStreak = 0
