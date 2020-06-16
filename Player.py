@@ -15,7 +15,7 @@ class Player:
         self.iconIndex = random.randint(0, numIcons - 1)
         self.isHost = isHost
         self.isReady = isHost
-        self.score = 0
+        self.money = 0
 
     def __repr__(self):
         return str((self.user,self.hand,self.coins,self.seat))
@@ -33,7 +33,7 @@ class Player:
         json["name"] = self.playerName
         json["iconIndex"] = self.iconIndex
         json["direction"] = self.direction.toJSON()
-        json["score"] = self.score
+        json["money"] = self.money
         json["handSize"] = self.handSize
         json["completed"] = [[c.toJSON() for c in x] for x in self.completed]
         if isCurrentPlayer:
@@ -48,12 +48,13 @@ class Player:
 
     def startGame(self, direction):
         self.direction = direction
-        self.score = 0
+        self.money = 0
         self.hand = []
         self.handSize = 0
         self.completed = []
         self.actions = []
         self.lastDrawn = None
+        self.recentAction = False
 
     def nextGame(self, changeDirection=True):
         self.hand = []
@@ -61,6 +62,7 @@ class Player:
         self.completed = []
         self.actions = []
         self.lastDrawn = None
+        self.recentAction = False
         if changeDirection:
             self.direction = self.direction.prevDirection()
 
@@ -218,5 +220,5 @@ class Player:
                     return False
         return True
 
-    def updateScore(self, winStreak):
-        pass
+    def updateMoney(self, winStreak, selfDrew):
+        self.money += 1

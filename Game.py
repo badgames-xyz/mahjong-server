@@ -41,6 +41,7 @@ class Game():
         else:
             json["time"] = turnTime
         json["timeLeft"] = 0 # TODO
+        json["newGame"] = self.newGame
         for i in range(len(self.players)):
             if self.players[i].sessionID == sessionID:
                 json["currentPlayer"] = self.players[i].getGamePlayerJSON(True)
@@ -62,6 +63,7 @@ class Game():
         self.actionTurn = True
         # player discarding can only pass
         self.action(sessionID, -1)
+        self.newGame = False
 
     def createActions(self, sid, card):
         numPlayers = len(self.players)
@@ -80,6 +82,7 @@ class Game():
     def action(self, sessionID, index):
         self.actionsReceived[sessionID] = index
         if len(self.actionsReceived) == 4:
+            self.clearRecentActions()
             # given all actions, determine who gets it
             numPlayers = len(self.players)
             curPlayer = self.playerFromDirection(self.turn)
@@ -123,6 +126,7 @@ class Game():
                         if action.group == "kong":
                             p.draw(self.deck.pop())
                             self.drawPile = len(self.deck)
+                        p.recentAction = True
                         settled = True
                         nextPlayer = p.sessionID
                         break
@@ -135,6 +139,7 @@ class Game():
                         action = p.actions[actionIndex]
                         p.doAction(action)
                         nextPlayer = p.sessionID
+                    p.recentAction = True
             else:
                 # everyone passes, next player draws a card
                 self.playerFromSessionID(nextPlayer).draw(self.deck.pop())
@@ -149,14 +154,16 @@ class Game():
     def win(self, sessionID):
         winner = self.playerFromSessionID(sessionID)
         self.winner = sessionID
-        if winner.direction == self.leaderDirection:
+        if winner.direction == Card.special(1):
             self.winStreak += 1
         else:
-            self.leaderDirection = self.leaderDirection.nextDirection()
             self.winStreak = 0
-        winner.updateScore(self.winStreak)
-        
+        selfDrew = winner.recentAction
+        winner.updateMoney(self.winStreak, selfDrew)
 
+    def clearRecentActions(self):
+        for p in self.players:
+            p.recentAction = False
 
     def createCode(self, len):
         letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -208,8 +215,9 @@ class Game():
         self.deck = createDeck()
         self.drawPile = len(self.deck)
         self.actionsReceived = {}
-        self.leaderDirection = Card.special(1)
+        self.gamesPlayed = 0
         self.winStreak = 0
+        self.newGame = True
 
         # all players draw 13 cards, first player draws 14
         for p in self.players:
@@ -219,11 +227,10 @@ class Game():
 
     def nextGame(self):
         changeDirection = self.winStreak == 0
-        if changeDirection:
-            self.leaderDirection.nextDirection()
-            if self.leaderDirection == self.direction:
-                self.direction = self.direction.nextDirection()
-        self.turn = self.leaderDirection
+        self.gamesPlayed += 1
+        if self.gamesPlayed % 4 == 0:
+            self.direction = self.direction.nextDirection()
+        self.turn = Card.special(1)
         self.actionTurn = False
         self.winner = None
         for p in self.players:
@@ -232,6 +239,7 @@ class Game():
         self.deck = createDeck()
         self.drawPile = len(self.deck)
         self.actionsReceived = {}
+        self.newGame = True
 
         # all players draw 13 cards, first player draws 14
         for p in self.players:
