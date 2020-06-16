@@ -51,6 +51,10 @@ class Game():
         json["drawPile"] = self.drawPile
         return json
 
+    def resetAllLastDrawn(self):
+        for p in self.players:
+            p.lastDrawn = None
+
     def changeTurn(self, sessionID):
         self.turn = self.playerFromSessionID(sessionID).direction
 
@@ -64,6 +68,7 @@ class Game():
         # player discarding can only pass
         self.action(sessionID, -1)
         self.newGame = False
+        self.resetAllLastDrawn()
 
     def createActions(self, sid, card):
         numPlayers = len(self.players)
