@@ -139,8 +139,8 @@ def onGameStart(data):
         emit('error', {'code': 9})
         return
     games[roomCode].startGame()
-    gameNotifyAll(roomCode)
     games[roomCode].startDiscardTimer(gameTimerNotifyAll)
+    gameNotifyAll(roomCode)
 
 @socketio.on('discard')
 def onDiscard(data):
@@ -150,8 +150,8 @@ def onDiscard(data):
         emit('error', {'code': 10})
         return
     games[roomCode].discard(request.sid, data["index"])
-    gameNotifyAll(roomCode)
     games[roomCode].startActionTimer(gameTimerNotifyAll)
+    gameNotifyAll(roomCode)
 
 @socketio.on('action')
 def onAction(data):
@@ -165,8 +165,8 @@ def onAction(data):
         if games[roomCode].winner is not None:
             nextGame(roomCode)
         else:
-            gameNotifyAll(roomCode)
             games[roomCode].startDiscardTimer(gameTimerNotifyAll)
+            gameNotifyAll(roomCode)
 
 @socketio.on('win')
 def onWin(data):
@@ -183,8 +183,8 @@ def nextGame(roomCode):
     # wait a few seconds then start the next game
     time.sleep(timeBetweenGames)
     games[roomCode].nextGame()
-    gameNotifyAll(roomCode)
     games[roomCode].startDiscardTimer(gameTimerNotifyAll)
+    gameNotifyAll(roomCode)
     
 
 if __name__ == '__main__':

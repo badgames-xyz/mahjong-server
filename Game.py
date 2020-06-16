@@ -16,6 +16,8 @@ class Game():
         self.players = []
 
         self.timer = None
+        self.startTime = None
+        self.setStartTime()
     
     def getLobbyDataJSON(self, sessionID):
         json = {}
@@ -36,11 +38,7 @@ class Game():
         json["actionTurn"] = self.actionTurn
         json["winner"] = self.winner
         json["players"] = []
-        if self.actionTurn:
-            json["time"] = actionTime
-        else:
-            json["time"] = turnTime
-        json["timeLeft"] = 0 # TODO
+        json["timeLeft"] = self.getTimeRemaining(not self.actionTurn)
         json["newGame"] = self.newGame
         for i in range(len(self.players)):
             if self.players[i].sessionID == sessionID:
@@ -256,22 +254,33 @@ class Game():
             p.setHand([self.deck.pop() for i in range(13)])
         self.playerFromDirection(self.turn).draw(self.deck.pop())
 
+    def setStartTime(self):
+        self.startTime = int(time.time())
+
+    def getTimeRemaining(self, normal=True):
+        timeElapsed = int(time.time()) - self.startTime
+        if normal:
+            return turnTime - timeElapsed
+        else:
+            return actionTime - timeElapsed
 
     def startDiscardTimer(self, callBack):
         self.cancelTimer()
         self.timer = Timer(turnTime + bufferTime, self.defaultDiscard, [callBack])
+        self.setStartTime()
         self.timer.start()
 
     def startActionTimer(self, callBack):
         self.cancelTimer()
         self.timer = Timer(actionTime + bufferTime, self.defaultAction, [callBack])
+        self.setStartTime()
         self.timer.start()
 
     def defaultDiscard(self, callBack):
         self.cancelTimer()
         self.discard(self.playerFromDirection(self.turn).sessionID, 0)
-        callBack(self.roomCode)
         self.startActionTimer(callBack)
+        callBack(self.roomCode)
 
     def defaultAction(self, callBack):
         self.cancelTimer()
@@ -283,8 +292,8 @@ class Game():
                     # wait a few seconds then start the next game
                     time.sleep(timeBetweenGames)
                     self.nextGame()
-        callBack(self.roomCode)
         self.startDiscardTimer(callBack)
+        callBack(self.roomCode)
 
     def cancelTimer(self):
         if self.timer is not None:
