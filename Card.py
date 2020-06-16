@@ -11,18 +11,15 @@ suits = ["char", "circle", "stick", "special"]
 
 def createDeck():
     deck = []
-    # for suit in order:
-    #     lim = 10
-    #     if suit == "special":
-    #         lim = 8
-    #     for num in range(1, lim):
-    #         for i in range(4):
-    #             deck.append(Card(suit, num))
-    # assert len(deck) == 136
-    # random.shuffle(deck)
-    for i in range(200):
-        deck.append(Card.char(1))
-    return deck
+    for suit in order:
+        lim = 10
+        if suit == "special":
+            lim = 8
+        for num in range(1, lim):
+            for i in range(4):
+                deck.append(Card(suit, num))
+    assert len(deck) == 136
+    random.shuffle(deck)
 
 class Card:
     def __init__(self, suit, num):
