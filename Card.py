@@ -20,6 +20,7 @@ def createDeck():
                 deck.append(Card(suit, num))
     assert len(deck) == 136
     random.shuffle(deck)
+    return deck
 
 class Card:
     def __init__(self, suit, num):
