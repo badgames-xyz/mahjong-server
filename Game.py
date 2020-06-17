@@ -157,11 +157,11 @@ class Game():
                     p.recentAction = True
             else:
                 # everyone passes, next player draws a card
+                for p in self.players:
+                    p.resetActions()
                 if self.addKong:
                     self.addKong = False
                     self.actionsReceived.clear()
-                    for p in self.players:
-                        p.resetActions()
                     curPlayer.draw(self.deck.pop())
                     self.drawPile = len(self.deck)
                     return True
@@ -284,7 +284,6 @@ class Game():
             p.nextGame(changeDirection)
         self.discardPile = []
         self.deck = createDeck()
-        self.drawPile = len(self.deck)
         self.actionsReceived = {}
         self.newGame = True
         self.addKong = False
@@ -293,6 +292,7 @@ class Game():
         for p in self.players:
             p.setHand([self.deck.pop() for i in range(13)])
         self.playerFromDirection(self.turn).draw(self.deck.pop())
+        self.drawPile = len(self.deck)
 
     def setStartTime(self):
         self.startTime = int(time.time())
