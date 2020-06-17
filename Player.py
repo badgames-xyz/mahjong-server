@@ -131,7 +131,7 @@ class Player:
             if canWin:
                 self.actions.append(Action.winKong(card, card))
         
-        if nextTurn:
+        if nextTurn or canWin:
             possibleChows = card.getPossibleChows()
             for chow in possibleChows:
                 canAdd = True
@@ -142,8 +142,8 @@ class Player:
                 if canAdd:
                     if not addKong:
                         self.actions.append(Action.chow(chow[0], card))
-                    if canWin:
-                        self.actions.append(Action.winChow(chow[0], card))
+                if canAdd and canWin:
+                    self.actions.append(Action.winChow(chow[0], card))
 
         if self.needEyes(card):
             self.actions.append(Action.winEyes(card, card))
