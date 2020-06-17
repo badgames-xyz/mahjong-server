@@ -115,8 +115,8 @@ class Game():
                         continue
                     action = p.actions[actionIndex]
                     if action.winningAction:
-                        for p in self.players:
-                            p.resetActions()
+                        for pl in self.players:
+                            pl.resetActions()
                         # give it to this player.
                         p.doAction(action)
                         self.removeDiscardCard()
