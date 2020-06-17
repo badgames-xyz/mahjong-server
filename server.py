@@ -168,6 +168,22 @@ def onAction(data):
             games[roomCode].startDiscardTimer(gameTimerNotifyAll)
             gameNotifyAll(roomCode)
 
+@socketio.on('turnAction')
+def onTurnAction(data):
+    data = json.loads(data)
+    roomCode = data["roomCode"]
+    if roomCode not in games:
+        emit('error', {'code': 11})
+        return
+    isPlace = games[roomCode].turnAction(request.sid, data["index"])
+    if isPlace:
+        games[roomCode].startDiscardTimer(gameTimerNotifyAll)
+        gameNotifyAll(roomCode)
+    else:
+        # player added to kong. 
+        games[roomCode].startActionTimer(gameTimerNotifyAll)
+        gameNotifyAll(roomCode)
+
 @socketio.on('win')
 def onWin(data):
     data = json.loads(data)

@@ -36,15 +36,23 @@ class Action:
     def winEyes(cls, start, taken):
         return Action("win eyes", start, taken, win=True)
 
+    @classmethod
+    def placeKong(cls, start, taken):
+        return Action("place kong", start, taken)
+
+    @classmethod
+    def addKong(cls, start, taken):
+        return Action("add kong", start, taken)
+
     def createCards(self):
         cards = []
-        if self.group == "chow" or self.group == "win chow":
+        if "chow" in self.group:
             cards = [self.start.copy(), self.start.up(), self.start.up().up()]
-        elif self.group == "pong" or self.group == "win pong":
+        elif "pong" in self.group:
             cards = [self.start.copy(), self.start.copy(), self.start.copy()]
-        elif self.group == "kong" or self.group == "win kong":
+        elif "kong" in self.group:
             cards = [self.start.copy(), self.start.copy(), self.start.copy(), self.start.copy()]
-        elif self.group == "eyes" or self.group == "win eyes":
+        elif "eyes" in self.group:
             cards = [self.start.copy(), self.start.copy()]
         else:
             print("Invalid Action Created")
@@ -56,3 +64,9 @@ class Action:
             "taken": self.taken.toJSON(),
             "cards": [x.toJSON() for x in self.cards],
         }
+
+    def cardsJSON(self, isCurrentPlayer):
+        if not isCurrentPlayer and self.group == "place kong":
+            return [Card.hidden().toJSON() for x in self.cards]
+        else:
+            return [x.toJSON() for x in self.cards]

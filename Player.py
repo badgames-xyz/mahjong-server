@@ -35,7 +35,7 @@ class Player:
         json["direction"] = self.direction.toJSON()
         json["money"] = self.money
         json["handSize"] = self.handSize
-        json["completed"] = [[c.toJSON() for c in x] for x in self.completed]
+        json["completed"] = [x.cardsJSON(isCurrentPlayer) for x in self.completed]
         if isCurrentPlayer:
             json["hand"] = [x.toJSON() for x in self.hand]
             if self.lastDrawn:
@@ -85,10 +85,27 @@ class Player:
         self.handSize = len(self.hand)
         self.lastDrawn = card
 
-    def addCompleted(self, cards, extra):
-        self.completed.append(cards)
-        copy = [c.copy() for c in cards]
-        copy.remove(extra)
+        # check for 4 of a kind in hand, or 3 of a kind in completed
+        if self.hand.count(card) >= 4:
+            self.actions.append(Action.placeKong(card, card))
+        for meld in self.completed:
+            if meld.cards.count(card) == 3:
+                self.actions.append(Action.addKong(card, card))
+                break
+
+    def addCompleted(self, action):
+        if action.group == "add kong":
+            for meld in self.completed:
+                if "pong" in meld.group and meld.taken == action.taken:
+                    meld.cards.append(action.taken)
+                    self.hand.remove(action.taken)
+                    self.handSize = len(self.hand)
+                    break
+            return
+        self.completed.append(action)
+        copy = [c.copy() for c in action.cards]
+        if action.group != "place kong":
+            copy.remove(action.taken)
         for c in copy:
             self.hand.remove(c)
         self.handSize = len(self.hand)
@@ -98,17 +115,19 @@ class Player:
         self.handSize = len(self.hand)
         return discarded
 
-    def createActions(self, card, nextTurn=False):
+    def createActions(self, card, nextTurn=False, addKong=False):
         # populate self.actions with chow, pong, kong, eyes
         # eyes only if winning, chow if nextTurn is True or if winning
         canWin = self.canWinWith(card)
 
         if self.hand.count(card) >= 2:
-            self.actions.append(Action.pong(card, card))
+            if not addKong:
+                self.actions.append(Action.pong(card, card))
             if canWin:
                 self.actions.append(Action.winPong(card, card))
         if self.hand.count(card) >= 3:
-            self.actions.append(Action.kong(card, card))
+            if not addKong:
+                self.actions.append(Action.kong(card, card))
             if canWin:
                 self.actions.append(Action.winKong(card, card))
         
@@ -121,7 +140,8 @@ class Player:
                         canAdd = False
                         break
                 if canAdd:
-                    self.actions.append(Action.chow(chow[0], card))
+                    if not addKong:
+                        self.actions.append(Action.chow(chow[0], card))
                     if canWin:
                         self.actions.append(Action.winChow(chow[0], card))
 
@@ -129,7 +149,7 @@ class Player:
             self.actions.append(Action.winEyes(card, card))
 
     def doAction(self, action):
-        self.addCompleted(action.cards, action.taken)
+        self.addCompleted(action)
 
     def resetActions(self):
         self.actions.clear()

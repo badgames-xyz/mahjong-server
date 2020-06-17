@@ -43,6 +43,10 @@ class Card:
     def special(cls, num):
         return cls("special", num)
 
+    @classmethod
+    def hidden(cls):
+        return cls("hidden", 1)
+
     def toJSON(self):
         return {
             "suit": self.suit,
@@ -88,7 +92,7 @@ class Card:
 
     def getPossibleChows(self):
         chows = []
-        if self.suit == "special":
+        if self.suit == "special" or self.suit == "hidden":
             return chows
         
         if self.num >= 3:

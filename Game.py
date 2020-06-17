@@ -71,7 +71,7 @@ class Game():
         self.newGame = False
         self.resetAllLastDrawn()
 
-    def createActions(self, sid, card):
+    def createActions(self, sid, card, addKong=False):
         numPlayers = len(self.players)
         ind = 0
         for i in range(numPlayers):
@@ -81,9 +81,9 @@ class Game():
         for i in range(1, numPlayers):
             p = self.players[(ind + i) % numPlayers]
             if (i == 1):
-                p.createActions(card, True)
+                p.createActions(card, True, addKong=addKong)
             else:
-                p.createActions(card)
+                p.createActions(card, addKong=addKong)
 
     def action(self, sessionID, index):
         self.actionsReceived[sessionID] = index
@@ -151,6 +151,14 @@ class Game():
                     p.recentAction = True
             else:
                 # everyone passes, next player draws a card
+                if self.addKong:
+                    self.addKong = False
+                    self.actionsReceived.clear()
+                    for p in self.players:
+                        p.resetActions()
+                    curPlayer.draw(self.deck.pop())
+                    self.drawPile = len(self.deck)
+                    return True
                 self.playerFromSessionID(nextPlayer).draw(self.deck.pop())
                 self.drawPile = len(self.deck)
 
@@ -159,6 +167,30 @@ class Game():
             self.actionTurn = False
             return True
         return False
+
+    def turnAction(self, sessionID, index):
+        player = self.playerFromSessionID(sessionID)
+        action = player.actions[index]
+        player.addCompleted(action)
+        if action.group == "place kong":
+            # turn remains the same, draw another card
+            player.resetActions()
+            player.draw(self.deck.pop())
+            self.drawPile = len(self.deck)
+            return True
+        elif action.group == "add kong":
+            # everyone gets action turn
+            for p in self.players:
+                p.resetActions()
+            self.createActions(sessionID, action.taken, addKong=True)
+            self.actionTurn = True
+            # player who added to kong can only pass
+            self.action(sessionID, -1)
+            self.newGame = False
+            self.resetAllLastDrawn()
+            self.addKong = True
+            return False
+
 
     def win(self, sessionID):
         winner = self.playerFromSessionID(sessionID)
@@ -226,6 +258,7 @@ class Game():
         self.gamesPlayed = 0
         self.winStreak = 0
         self.newGame = True
+        self.addKong = False
 
         # all players draw 13 cards, first player draws 14
         for p in self.players:
@@ -248,6 +281,7 @@ class Game():
         self.drawPile = len(self.deck)
         self.actionsReceived = {}
         self.newGame = True
+        self.addKong = False
 
         # all players draw 13 cards, first player draws 14
         for p in self.players:
@@ -292,6 +326,7 @@ class Game():
                     # wait a few seconds then start the next game
                     time.sleep(timeBetweenGames)
                     self.nextGame()
+        self.actionTurn = False
         self.startDiscardTimer(callBack)
         callBack(self.roomCode)
 
