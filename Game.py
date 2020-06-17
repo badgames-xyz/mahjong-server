@@ -115,6 +115,8 @@ class Game():
                         continue
                     action = p.actions[actionIndex]
                     if action.winningAction:
+                        for p in self.players:
+                            p.resetActions()
                         # give it to this player.
                         p.doAction(action)
                         self.removeDiscardCard()
@@ -129,6 +131,8 @@ class Game():
                         if actionIndex == -1:
                             continue
                         action = p.actions[actionIndex]
+                        for pl in self.players:
+                            pl.resetActions()
                         p.doAction(action)
                         self.removeDiscardCard()
                         if action.group == "kong":
@@ -145,6 +149,8 @@ class Game():
                     actionIndex = self.actionsReceived[p.sessionID]
                     if actionIndex != -1:
                         action = p.actions[actionIndex]
+                        for pl in self.players:
+                            pl.resetActions()
                         p.doAction(action)
                         self.removeDiscardCard()
                         nextPlayer = p.sessionID
