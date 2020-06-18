@@ -196,7 +196,7 @@ class Game():
             player.resetActions()
             player.draw(self.deck.pop())
             self.drawPile = len(self.deck)
-            return True
+            return False
         elif action.group == "add kong":
             # everyone gets action turn
             for p in self.players:

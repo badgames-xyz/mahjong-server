@@ -181,12 +181,8 @@ def onTurnAction(data):
         return
     anyAction = games[roomCode].turnAction(request.sid, data["index"])
     if anyAction:
-        games[roomCode].startDiscardTimer(gameTimerNotifyAll)
-        gameNotifyAll(roomCode)
-    else:
-        # player added to kong. 
         games[roomCode].startActionTimer(gameTimerNotifyAll)
-        gameNotifyAll(roomCode)
+    gameNotifyAll(roomCode)
 
 @socketio.on('win')
 def onWin(data):
