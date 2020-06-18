@@ -92,10 +92,7 @@ class Game():
                 break
         for i in range(1, numPlayers):
             p = self.players[(ind + i) % numPlayers]
-            if (i == 1):
-                p.createActions(card, True, addKong=addKong)
-            else:
-                p.createActions(card, addKong=addKong)
+            p.createActions(card, nextTurn=(i==1), addKong=addKong)
 
     def action(self, sessionID, index):
         self.actionsReceived[sessionID] = index
@@ -186,6 +183,10 @@ class Game():
             return True
         return False
 
+    # Given a player's sessionID, and action index, performs that action.
+    # This function is only for place kong and add kong actions.
+    # Returns True if the action is add kong and another player can take it to win.
+    # Otherwise returns False.
     def turnAction(self, sessionID, index):
         player = self.playerFromSessionID(sessionID)
         action = player.actions[index]
@@ -201,13 +202,20 @@ class Game():
             for p in self.players:
                 p.resetActions()
             self.createActions(sessionID, action.taken, addKong=True)
-            self.actionTurn = True
-            # player who added to kong can only pass
-            self.action(sessionID, -1)
+
+            anyAction = False
+            for p in self.players:
+                if not p.actions:
+                    self.action(p.sessionID, -1)
+                else:
+                    anyAction = True
+            self.actionTurn = anyAction
             self.newGame = False
             self.resetAllLastDrawn()
-            self.addKong = True
-            return False
+            if anyAction:
+                self.addKong = True
+
+            return anyAction
 
 
     def win(self, sessionID):

@@ -179,8 +179,8 @@ def onTurnAction(data):
     if roomCode not in games:
         emit('error', {'code': 11})
         return
-    isPlace = games[roomCode].turnAction(request.sid, data["index"])
-    if isPlace:
+    anyAction = games[roomCode].turnAction(request.sid, data["index"])
+    if anyAction:
         games[roomCode].startDiscardTimer(gameTimerNotifyAll)
         gameNotifyAll(roomCode)
     else:
