@@ -59,17 +59,29 @@ class Game():
     def changeTurn(self, sessionID):
         self.turn = self.playerFromSessionID(sessionID).direction
 
+    # Given a player's sessionID, and the index of the card in their hand
+    # they want to discard, this function will discard that card, and create
+    # possible actions for all other players. Returns true if any other player
+    # has any actions (other than pass). Returns false otherwise.
+    # Auto passes for everyone with no actions.
     def discard(self, sessionID, index):
         discarded = self.playerFromSessionID(sessionID).discard(index)
         self.discardPile.insert(0, discarded)
         for p in self.players:
             p.resetActions()
         self.createActions(sessionID, discarded)
-        self.actionTurn = True
-        # player discarding can only pass
-        self.action(sessionID, -1)
+
+        anyAction = False
+        for p in self.players:
+            if not p.actions:
+                self.action(p.sessionID, -1)
+            else:
+                anyAction = True
+        self.actionTurn = anyAction
         self.newGame = False
         self.resetAllLastDrawn()
+
+        return anyAction
 
     def createActions(self, sid, card, addKong=False):
         numPlayers = len(self.players)
