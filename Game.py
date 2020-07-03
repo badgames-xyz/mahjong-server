@@ -220,13 +220,21 @@ class Game():
 
     def win(self, sessionID):
         winner = self.playerFromSessionID(sessionID)
-        self.winner = sessionID
         if winner.direction == Card.special(1):
             self.winStreak += 1
         else:
             self.winStreak = 0
         selfDrew = winner.recentAction
         winner.updateMoney(self.winStreak, selfDrew)
+        self.winner = {
+            "name": winner.playerName,
+            "iconIndex": winner.iconIndex,
+            "points": 1, # TODO
+            "money": winner.money,
+            "hand": [x.toJSON() for x in winner.hand],
+            "completed": [[x.toJSON() for x in meld] for meld in winner.completed],
+            "time": timeBetweenGames,
+        }
 
     def clearRecentActions(self):
         for p in self.players:
