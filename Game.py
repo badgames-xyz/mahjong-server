@@ -70,6 +70,7 @@ class Game():
         for p in self.players:
             p.resetActions()
         self.createActions(sessionID, discarded)
+        self.resetAllLastDrawn()
 
         anyAction = False
         for p in self.players:
@@ -79,7 +80,6 @@ class Game():
                 anyAction = True
         self.actionTurn = anyAction
         self.newGame = False
-        self.resetAllLastDrawn()
 
         return anyAction
 
