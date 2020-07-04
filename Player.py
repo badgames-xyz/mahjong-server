@@ -55,6 +55,7 @@ class Player:
         self.actions = []
         self.lastDrawn = None
         self.recentAction = False
+        self.cantPong = None
 
     def nextGame(self, changeDirection=True):
         self.hand = []
@@ -63,6 +64,7 @@ class Player:
         self.actions = []
         self.lastDrawn = None
         self.recentAction = False
+        self.cantPong = None
         if changeDirection:
             self.direction = self.direction.prevDirection()
 
@@ -84,6 +86,7 @@ class Player:
         bisect.insort(self.hand, card)
         self.handSize = len(self.hand)
         self.lastDrawn = card
+        self.cantPong = None
 
         # check for 4 of a kind in hand, or 3 of a kind in completed
         if self.hand.count(card) >= 4:
@@ -121,13 +124,15 @@ class Player:
         canWin = self.canWinWith(card)
 
         if self.hand.count(card) >= 2:
-            if not addKong:
+            if not addKong and self.cantPong != card:
                 self.actions.append(Action.pong(card, card))
+                self.cantPong = card
             if canWin:
                 self.actions.append(Action.winPong(card, card))
         if self.hand.count(card) >= 3:
-            if not addKong:
+            if not addKong and self.cantPong != card:
                 self.actions.append(Action.kong(card, card))
+                self.cantPong = card
             if canWin:
                 self.actions.append(Action.winKong(card, card))
         

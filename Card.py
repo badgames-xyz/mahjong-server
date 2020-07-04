@@ -114,6 +114,8 @@ class Card:
         return self.num < other.num
 
     def __eq__(self, other):
+        if other is None:
+            return False
         return self.suit == other.suit and self.num == other.num
 
     def __ne__(self, other):
