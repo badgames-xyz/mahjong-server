@@ -1,5 +1,5 @@
 websockets==9.1
-flask==1.1.2
+flask==2.2.5
 flask-socketio==4.3.0
 gunicorn==20.0.4
 gevent==20.5.2
